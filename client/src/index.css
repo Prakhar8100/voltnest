@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ev-green: #00FF87;
+  --color-ev-cyan: #00D4FF;
+  --color-dark-tech: #0F172A; /* Slate 900 */
+  --color-dark-tech-light: #1E293B; /* Slate 800 */
+  
+  --font-display: 'Orbitron', sans-serif;
+  --font-body: 'Rajdhani', sans-serif;
+}
+
+@layer base {
+  body {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-ev-green) var(--color-dark-tech);
+  }
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-dark-tech);
+  color: #F8FAFC;
+  font-family: var(--font-body);
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+/* Custom Utilities */
+@layer utilities {
+  .text-glow {
+    text-shadow: 0 0 10px var(--color-ev-green);
+  }
+  .bg-glow {
+    box-shadow: 0 0 15px var(--color-ev-green);
+  }
+  .cyan-glow {
+    box-shadow: 0 0 15px var(--color-ev-cyan);
+  }
+  .text-cyan-glow {
+    text-shadow: 0 0 10px var(--color-ev-cyan);
+  }
+}
