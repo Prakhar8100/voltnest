@@ -9,6 +9,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -18,17 +19,21 @@ const Login = () => {
       setError('Please fill in all fields');
       return;
     }
-    
+    if (loading) return;
+
+    setLoading(true);
+    setError('');
     try {
       const res = await login(email, password);
-      setError('');
       if (res.data.role === 'admin') {
         navigate('/admin');
       } else {
         navigate('/dashboard');
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
+      setError(err.response?.data?.message || 'Login failed. The server may be waking up — please try again in 30 seconds.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -116,9 +121,18 @@ const Login = () => {
             <div>
               <button
                 type="submit"
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-bold font-body text-dark-tech bg-ev-cyan hover:bg-[#00D4FF] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ev-cyan transition-all shadow-[0_0_15px_rgba(0,212,255,0.4)] hover:shadow-[0_0_25px_rgba(0,212,255,0.6)]"
+                disabled={loading}
+                className="w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-bold font-body text-dark-tech bg-ev-cyan hover:bg-[#00D4FF] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ev-cyan transition-all shadow-[0_0_15px_rgba(0,212,255,0.4)] hover:shadow-[0_0_25px_rgba(0,212,255,0.6)] disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                Sign In
+                {loading ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4 text-dark-tech" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                    </svg>
+                    Signing In...
+                  </>
+                ) : 'Sign In'}
               </button>
             </div>
           </form>

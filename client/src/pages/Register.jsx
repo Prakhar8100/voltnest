@@ -11,6 +11,7 @@ const Register = () => {
   const [role, setRole] = useState('user');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const [profileImage, setProfileImage] = useState('');
   
   const handleImageUpload = (e, setBase64) => {
@@ -43,12 +44,16 @@ const Register = () => {
       setError('Please fill in all fields');
       return;
     }
+    if (loading) return; // prevent double submission
     
+    setLoading(true);
+    setError('');
     try {
       let stationDetails = null;
       if (role === 'admin') {
         if (!stationName || !stationAddress || !stationCity || !stationLat || !stationLng || !stationPrice) {
           setError('Please fill in all station fields');
+          setLoading(false);
           return;
         }
         stationDetails = {
@@ -64,14 +69,15 @@ const Register = () => {
       }
       
       const res = await register(name, email, password, role, profileImage, stationDetails);
-      setError('');
       if (res.data.role === 'admin') {
         navigate('/admin');
       } else {
         navigate('/dashboard');
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed');
+      setError(err.response?.data?.message || 'Registration failed. The server may be waking up — please try again in 30 seconds.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -226,9 +232,18 @@ const Register = () => {
             <div>
               <button
                 type="submit"
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-bold font-body text-dark-tech bg-ev-green hover:bg-[#00e676] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ev-green transition-all shadow-[0_0_15px_rgba(0,255,135,0.4)] hover:shadow-[0_0_25px_rgba(0,255,135,0.6)]"
+                disabled={loading}
+                className="w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-bold font-body text-dark-tech bg-ev-green hover:bg-[#00e676] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ev-green transition-all shadow-[0_0_15px_rgba(0,255,135,0.4)] hover:shadow-[0_0_25px_rgba(0,255,135,0.6)] disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                Create Account
+                {loading ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4 text-dark-tech" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                    </svg>
+                    Creating Account...
+                  </>
+                ) : 'Create Account'}
               </button>
             </div>
             
