@@ -72,7 +72,7 @@ const Register = () => {
       if (res.data.role === 'admin') {
         navigate('/admin');
       } else {
-        navigate('/dashboard');
+        navigate('/stations');
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed. The server may be waking up — please try again in 30 seconds.');

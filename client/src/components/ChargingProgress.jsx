@@ -1,16 +1,21 @@
 import { useState, useEffect } from 'react';
 import { BsLightningChargeFill } from 'react-icons/bs';
 
-const ChargingProgress = ({ percentage = 65, timeRemaining = '15m' }) => {
+const ChargingProgress = ({ percentage = 65, timeRemaining = '15m', isLive = false }) => {
   const [currentProgress, setCurrentProgress] = useState(0);
 
+  useEffect(() => {
+    setCurrentProgress(percentage);
+  }, [percentage]);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setCurrentProgress(percentage);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [percentage]);
+    if (isLive && currentProgress < 99) {
+      const interval = setInterval(() => {
+        setCurrentProgress(prev => Math.min(prev + 0.1, 99.9));
+      }, 3000);
+      return () => clearInterval(interval);
+    }
+  }, [isLive, currentProgress]);
 
   return (
     <div className="w-full">

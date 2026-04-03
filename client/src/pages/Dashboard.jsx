@@ -11,9 +11,9 @@ const Dashboard = () => {
   const { user, loading, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const [isCharging, setIsCharging] = useState(true);
   const [bookings, setBookings] = useState([]);
   const [loadingBookings, setLoadingBookings] = useState(true);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   // Form State
   const [profileForm, setProfileForm] = useState({ name: '', phone: '' });
@@ -46,7 +46,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const { data } = await api.get('/bookings/my-bookings');
+        const { data } = await api.get('/bookings/my');
         setBookings(data.data);
       } catch (err) { } finally {
         setLoadingBookings(false);
@@ -57,12 +57,47 @@ const Dashboard = () => {
 
   if (loading || !user) return null;
 
+  const activeBooking = bookings.find(b => b.status === 'active');
+  const upcomingBooking = bookings.find(b => b.status === 'upcoming');
+
+  const totalKwh = bookings.reduce((sum, b) => sum + (b.kwhConsumed || 0), 0);
+  const totalMoney = bookings.reduce((sum, b) => sum + (b.totalCost || 0), 0);
+  const totalCo2 = (totalKwh * 0.4).toFixed(1);
+
   const stats = [
-    { label: 'Total Sessions', value: bookings.length || '24', unit: '' },
-    { label: 'Energy Consumed', value: '840.5', unit: 'kWh' },
-    { label: 'Money Spent', value: '$285.40', unit: '' },
-    { label: 'CO₂ Saved', value: '312', unit: 'kg' },
+    { label: 'Total Sessions', value: bookings.length, unit: '' },
+    { label: 'Energy Consumed', value: totalKwh.toFixed(1), unit: 'kWh' },
+    { label: 'Money Spent', value: `$${totalMoney.toFixed(2)}`, unit: '' },
+    { label: 'CO₂ Saved', value: totalCo2, unit: 'kg' },
   ];
+
+  const handleStartCharging = async (bookingId) => {
+    setIsUpdating(true);
+    try {
+      await api.patch(`/bookings/${bookingId}/status`, { status: 'active' });
+      // Refresh bookings
+      const { data } = await api.get('/bookings/my');
+      setBookings(data.data);
+    } catch (err) {
+      alert('Failed to start charging');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleStopCharging = async (bookingId) => {
+    setIsUpdating(true);
+    try {
+      await api.patch(`/bookings/${bookingId}/status`, { status: 'completed' });
+      // Refresh bookings
+      const { data } = await api.get('/bookings/my');
+      setBookings(data.data);
+    } catch (err) {
+      alert('Failed to stop charging');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
@@ -140,8 +175,8 @@ const Dashboard = () => {
 
       <div className="flex-1 space-y-8">
         
-        {activeTab === 'overview' && isCharging && (
-          <div className="bg-gradient-to-br from-[#0a1520] to-dark-tech-light border border-ev-green/30 rounded-xl p-6 sm:p-8 shadow-[0_0_20px_rgba(0,255,135,0.05)] relative overflow-hidden transition-all">
+        {activeTab === 'overview' && activeBooking && (
+          <div className="bg-gradient-to-br from-[#0a1520] to-dark-tech-light border border-ev-green/30 rounded-xl p-6 sm:p-8 shadow-[0_0_20px_rgba(0,255,135,0.05)] relative overflow-hidden transition-all animate-pulse-slow">
             <div className="absolute -right-10 -top-10 text-ev-green/5">
               <BsLightningChargeFill className="text-9xl" />
             </div>
@@ -151,20 +186,56 @@ const Dashboard = () => {
             <div className="grid md:grid-cols-2 gap-8 relative z-10">
               <div>
                 <div className="text-slate-400 font-body text-sm mb-1 uppercase tracking-wider">Station</div>
-                <div className="text-white font-bold text-lg mb-4">VoltHub Downtown - Slot A2</div>
+                <div className="text-white font-bold text-lg mb-4">{activeBooking.stationId?.name || 'VoltNest Station'}</div>
                 <div className="text-slate-400 font-body text-sm mb-1 uppercase tracking-wider">Energy Delivered</div>
-                <div className="text-ev-cyan font-bold text-2xl">45.2 kWh</div>
+                <div className="text-ev-cyan font-bold text-2xl">{activeBooking.kwhConsumed?.toFixed(2) || '0.00'} kWh</div>
               </div>
               <div className="flex flex-col justify-center">
-                 <ChargingProgress percentage={68} timeRemaining="12m" />
+                 <ChargingProgress percentage={65} timeRemaining="25m" isLive={true} />
               </div>
             </div>
             <div className="mt-6 pt-6 border-t border-slate-700/50 flex justify-end">
-              <button onClick={() => setIsCharging(false)} className="text-red-400 border border-red-400/30 hover:bg-red-400/10 px-4 py-2 rounded text-sm font-bold font-body transition-colors">
-                Stop Charging
+              <button 
+                onClick={() => handleStopCharging(activeBooking._id)} 
+                disabled={isUpdating}
+                className="text-red-400 border border-red-400/30 hover:bg-red-400/10 px-4 py-2 rounded text-sm font-bold font-body transition-colors disabled:opacity-50"
+              >
+                {isUpdating ? 'Updating...' : 'Stop Charging'}
               </button>
             </div>
           </div>
+        )}
+
+        {activeTab === 'overview' && !activeBooking && upcomingBooking && (
+          <div className="bg-dark-tech-light border border-blue-500/30 rounded-xl p-6 sm:p-8 relative overflow-hidden transition-all">
+             <div className="flex justify-between items-center flex-wrap gap-4">
+                <div>
+                  <h3 className="text-white font-display font-bold text-xl mb-2 items-center gap-2">Next Session</h3>
+                  <p className="text-slate-400 font-body">{upcomingBooking.stationId?.name} at {upcomingBooking.startTime}</p>
+                </div>
+                <button 
+                  onClick={() => handleStartCharging(upcomingBooking._id)}
+                  disabled={isUpdating}
+                  className="bg-ev-green text-dark-tech px-6 py-2 rounded-lg font-bold font-body hover:bg-[#00e676] transition-all shadow-[0_0_15px_rgba(0,255,135,0.3)]"
+                >
+                  {isUpdating ? 'Starting...' : 'Start Charging Now'}
+                </button>
+             </div>
+          </div>
+        )}
+
+        {activeTab === 'overview' && !activeBooking && !upcomingBooking && (
+           <div className="bg-dark-tech-light border border-slate-800 rounded-xl p-10 text-center">
+              <div className="mb-4 text-slate-500"><MdDashboard className="text-5xl mx-auto" /></div>
+              <h3 className="text-white font-display font-bold text-xl mb-2">No Active Sessions</h3>
+              <p className="text-slate-400 font-body mb-6">Ready to hit the road? Book your next charge today.</p>
+              <button 
+                onClick={() => navigate('/stations')}
+                className="bg-ev-cyan text-dark-tech px-8 py-3 rounded-xl font-bold font-body hover:bg-[#00D4FF] transition-all shadow-[0_0_20px_rgba(0,212,255,0.2)]"
+              >
+                Find a Station
+              </button>
+           </div>
         )}
 
         {activeTab === 'overview' && (

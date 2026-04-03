@@ -102,6 +102,12 @@ export const updateBookingStatus = async (req, res, next) => {
     }
 
     booking.status = status;
+    
+    // Check user ownership
+    if (booking.userId.toString() !== req.user.id && req.user.role !== 'admin') {
+      return res.status(401).json({ success: false, message: 'Not authorized to update this booking' });
+    }
+
     await booking.save();
 
     res.status(200).json({

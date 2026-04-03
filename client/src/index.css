@@ -82,4 +82,11 @@ h1, h2, h3, h4, h5, h6 {
   .animate-blob {
     animation: blob 8s infinite alternate;
   }
+  @keyframes pulse-slow {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.85; transform: scale(0.99); }
+  }
+  .animate-pulse-slow {
+    animation: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
 }

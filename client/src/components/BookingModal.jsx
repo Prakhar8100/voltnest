@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MdClose, MdEvStation } from 'react-icons/md';
 import { BsLightningChargeFill } from 'react-icons/bs';
 import api from '../services/api';
@@ -11,6 +12,7 @@ const BookingModal = ({ isOpen, onClose, station, slot }) => {
   const [vehicle, setVehicle] = useState('');
   const [loading, setLoading] = useState(false);
   const [bookingId, setBookingId] = useState('');
+  const navigate = useNavigate();
   
   if (!isOpen) return null;
 
@@ -175,7 +177,7 @@ const BookingModal = ({ isOpen, onClose, station, slot }) => {
               <div className="text-sm text-slate-500 font-body uppercase tracking-wider mb-1">Booking ID</div>
               <div className="text-xl font-display font-bold text-ev-green">{bookingId}</div>
             </div>
-            <button onClick={() => { onClose(); window.location.href = '/dashboard'; }} className="w-full bg-slate-800 text-white px-6 py-3 rounded font-bold font-body hover:bg-slate-700 transition-colors">
+            <button onClick={() => { onClose(); navigate('/dashboard'); }} className="w-full bg-slate-800 text-white px-6 py-3 rounded font-bold font-body hover:bg-slate-700 transition-colors">
               Go to Dashboard
             </button>
           </div>

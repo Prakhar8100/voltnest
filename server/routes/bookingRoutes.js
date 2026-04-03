@@ -19,6 +19,6 @@ router.route('/')
 router.route('/my').get(protect, getMyBookings);
 
 router.route('/:id/cancel').patch(protect, cancelBooking);
-router.route('/:id/status').patch(protect, admin, updateBookingStatus);
+router.route('/:id/status').patch(protect, updateBookingStatus);
 
 export default router;
