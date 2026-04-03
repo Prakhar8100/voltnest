@@ -9,13 +9,19 @@ const Stations = () => {
   const { stations, loading, error } = useStations(filters);
 
   const fallbackImage = 'https://images.unsplash.com/photo-1593941707882-a5bba14938cb?auto=format&fit=crop&q=80&w=800';
-  const displayData = stations.map(s => ({
+  const filteredStations = stations.filter(s => 
+    s.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    s.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    s.address.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const displayData = filteredStations.map(s => ({
       id: s._id,
       name: s.name,
       address: s.address,
       rating: s.rating || 4.5,
       chargerCount: s.totalSlots,
-      price: s.pricePerKwh,
+      price: s.pricePerKwh || 0,
       available: s.isActive,
       targetImage: s.images && s.images[0] ? s.images[0] : fallbackImage
   }));

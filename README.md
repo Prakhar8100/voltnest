@@ -1,79 +1,69 @@
-# VoltNest
+# VoltNest ⚡
 
-VoltNest is a modern, high-tech EV (Electric Vehicle) Charging Station Management and Booking Platform. It provides a sleek, dark-tech aesthetic interface for EV drivers to locate active charging stations, view real-time charger availability, and securely reserve booking slots. For Station Owners, it features a comprehensive Admin panel to manage stations, track analytics, and handle users.
+VoltNest is a premium, high-tech EV (Electric Vehicle) Charging Station Management and Booking Platform. It features a stunning **dark-tech aesthetic** with a focus on immersive user experience, real-time data, and seamless booking flows.
 
-## Features
+## 🚀 Recent Updates
+*   **Dynamic Responsive UI**: Completely redesigned Login and Register pages with a sophisticated two-column layout for desktop and a fluid, touch-optimized experience for mobile.
+*   **Advanced Mini-Animations**: Integrated custom CSS "blob" animations and blurred glassmorphism effects for a premium "Apple-like" feel.
+*   **Smart Navigation**: The Navbar now dynamically updates based on authentication state, hiding login/signup buttons and showing a context-aware Dashboard (Admin vs. User) and Logout option.
+*   **Enhanced Station Discovery**: Improved search logic allowing users to find stations by name, city, or address instantly.
+
+## 🌟 Key Features
 
 **For EV Drivers (Users):**
-* **Station Finder:** Search and filter stations by city, charger type (AC/DC/Fast), and live availability status.
-* **Real-time Availability:** View specific station slot details.
-* **Advance Booking:** Reserve an exact EV charging slot for a specific date and duration mapping to your vehicle model.
-* **Personal Dashboard:** Track upcoming/active reservations, past history, and active charging progress via an animated progress gauge.
-* **Authentication:** Secure JWT-based user login and registration with Bcrypt password hashing.
+*   **Station Finder:** Search and filter stations by name, city, or charger type (AC/DC/Fast) with live availability.
+*   **Premium Dashboards:** Track active charging progress via animated gauges and manage your booking history.
+*   **Seamless Booking:** Reserve specific slots with date/duration mapping tailored to your vehicle.
+*   **Secure Auth:** JWT-based authentication with high-end, responsive form layouts.
 
 **For Station Owners (Admins):**
-* **Station Management:** Full CRUD (Create, Read, Update, Delete) capability over charging locations via an interactive modal table.
-* **Network Analytics:** Monitor real-time system performance, total revenue, aggregated network charging statistics, and charger type distribution.
-* **Advanced Routing:** Distinct automatic redirection from login to `/admin` utilizing protected routes.
+*   **Full Network Control:** Comprehensive CRUD management for charging locations via interactive modals.
+*   **Deep Analytics:** Monitor revenue, site performance, and charger utilization statistics through a high-tech data interface.
+*   **Auto-Routing:** Intelligent redirection based on user role immediately upon login.
 
-## Tech Stack
+## 🛠️ Tech Stack
 
 **Frontend (`/client`)**
-* React.js (Vite)
-* Tailwind CSS v4 (Custom Dark-Tech theme with Orbitron & Rajdhani fonts)
-* React Router DOM (v6)
-* React Icons
-* Axios (Custom API Interceptors)
+*   **React.js (Vite)**: Lighting fast HMR development.
+*   **Tailwind CSS v4**: Utilizing the latest `@theme` engine for custom brand variables.
+*   **Glassmorphism & SFX**: Custom backdrop filters and CSS keyframe animations (`animate-blob`, `animate-fade-in`).
+*   **React Router v6**: Protected and role-based routing.
+*   **Lucide & React Icons**: Modern iconography.
 
 **Backend (`/server`)**
-* Node.js & Express
-* MongoDB & Mongoose ORM
-* JSON Web Tokens (JWT) for stateless authentication
-* Bcryptjs for secure password hashing
+*   **Node.js & Express**: High-performance RESTful API.
+*   **MongoDB & Mongoose**: Flexible document storage.
+*   **Stateless Auth**: JWT (JSON Web Tokens) with secure cookie/header storage.
+*   **Security**: Bcryptjs hashing and CORS protection.
 
-## Getting Started
+## 🏁 Getting Started
 
 ### Prerequisites
-* Node.js (v18+ recommended)
-* MongoDB (running locally on `localhost:27017` or a MongoDB Atlas URI)
+*   Node.js (v18+ recommended)
+*   MongoDB Instance (Local or Atlas)
 
 ### Installation
 
-1. **Clone or Extract the Repository:**
-   Navigate into the project root:
-   ```bash
-   cd voltnest
-   ```
+1.  **Clone the Repo:**
+    ```bash
+    git clone <repository-url>
+    cd voltnest
+    ```
 
-2. **Backend Setup:**
-   Navigate to the server directory, install dependencies, and configure your environment.
-   ```bash
-   cd server
-   npm install
-   ```
-   *Note: Ensure your `.env` contains `MONGO_URI=mongodb://localhost:27017/voltnest` and `JWT_SECRET`.*
+2.  **Backend Setup:**
+    ```bash
+    cd server
+    npm install
+    # Create .env with MONGO_URI and JWT_SECRET
+    ```
 
-3. **Frontend Setup:**
-   Navigate to the client directory and install dependencies.
-   ```bash
-   cd ../client
-   npm install
-   ```
+3.  **Frontend Setup:**
+    ```bash
+    cd ../client
+    npm install
+    ```
 
-### Seeding the Database (Optional but Recommended)
-To populate the database with realistic administrative profiles and diverse EV stations:
-```bash
-cd server
-npm run seed
-```
-
-This generates two sample accounts covering the authorization scope:
-* **Admin:** `admin@voltnest.com` | pass: `password123`
-* **Driver:** `driver@voltnest.com` | pass: `password123`
-
-### Running the Application Structure
-
-The project runs in disparate node instances across terminal sessions.
+### ⚡ Running Locally
 
 **Terminal 1 (Backend):**
 ```bash
@@ -81,12 +71,11 @@ cd server
 npm run dev
 ```
 
-
-**Terminal 2 (Frontend Proxy):**
+**Terminal 2 (Frontend):**
 ```bash
 cd client
 npm run dev
 ```
 
-## License
+## 📜 License
 MIT License.
