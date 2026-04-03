@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import connectDB from './config/db.js';
 import User from './models/User.js';
+import Admin from './models/Admin.js';
 import Station from './models/Station.js';
 
 dotenv.config();
@@ -12,16 +13,20 @@ const seedData = async () => {
   try {
   
     await User.deleteMany();
+    await Admin.deleteMany();
     await Station.deleteMany();
 
   
-    const createdUsers = await User.create([
+    const createdAdmins = await Admin.create([
       {
         name: 'Admin User',
         email: 'admin@voltnest.com',
         password: 'password123',
         role: 'admin',
-      },
+      }
+    ]);
+
+    await User.create([
       {
         name: 'Test Driver',
         email: 'driver@voltnest.com',
@@ -31,7 +36,7 @@ const seedData = async () => {
       }
     ]);
 
-    const adminId = createdUsers[0]._id;
+    const adminId = createdAdmins[0]._id;
 
   
     await Station.create([
@@ -123,8 +128,21 @@ const seedData = async () => {
   }
 };
 
+const destroyData = async () => {
+  try {
+    await Admin.deleteMany();
+    await User.deleteMany();
+    await Station.deleteMany();
+    console.log('✅ Data Destroyed Successfully!');
+    process.exit();
+  } catch (error) {
+    console.error(`❌ Error with Data Destroy: ${error}`);
+    process.exit(1);
+  }
+};
+
 if (process.argv[2] === '-d') {
-  // Destroy script not fully implemented for brevity, just seeds
+  destroyData();
 } else {
   seedData();
 }

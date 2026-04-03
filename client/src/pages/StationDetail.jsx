@@ -1,44 +1,60 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { MdLocationPin, MdEvStation, MdAccessTime, MdSecurity } from 'react-icons/md';
 import { BsLightningChargeFill, BsWifi } from 'react-icons/bs';
 import { FaCoffee, FaStar } from 'react-icons/fa';
 import BookingModal from '../components/BookingModal';
-
-const dummyStationDetails = {
-  id: 1,
-  name: 'VoltHub Downtown',
-  address: '124 Main St, City Center, Metro District',
-  rating: 4.8,
-  image: 'https://images.unsplash.com/vector-1774445180503-0de698e42cf6?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwcm9maWxlLXBhZ2V8MXx8fGVufDB8fHx8fA%3D%3D',
-  description: 'Premium downtown charging hub equipped with ultra-fast DC chargers. Located next to major shopping centers with 24/7 security and dedicated EV lounge.',
-  amenities: [
-    { icon: <FaCoffee />, text: 'Coffee Shop Nearby' },
-    { icon: <BsWifi />, text: 'Free Wi-Fi' },
-    { icon: <MdSecurity />, text: '24/7 Security' }
-  ],
-  pricing: '$0.35/kWh',
-  hours: '24/7',
-  slots: [
-    { id: 'A1', type: 'DC Fast 150kW', status: 'Available' },
-    { id: 'A2', type: 'DC Fast 150kW', status: 'Charging' },
-    { id: 'B1', type: 'DC Fast 350kW', status: 'Booked' },
-    { id: 'B2', type: 'DC Fast 350kW', status: 'Available' },
-    { id: 'C1', type: 'Level 2 AC', status: 'Available' },
-    { id: 'C2', type: 'Level 2 AC', status: 'Maintenance' },
-  ]
-};
+import api from '../services/api';
 
 const StationDetail = () => {
   const { id } = useParams();
+  const [stationData, setStationData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState(null);
 
-  const station = dummyStationDetails;
+  useEffect(() => {
+    const fetchStation = async () => {
+      try {
+        const { data } = await api.get(`/stations/${id}`);
+        setStationData(data.data);
+      } catch (err) {
+        setError(err.response?.data?.message || 'Failed to fetch station details');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStation();
+  }, [id]);
 
   const handleBook = (slotId) => {
     setSelectedSlot(slotId);
     setIsModalOpen(true);
+  };
+
+  if (loading) return <div className="min-h-screen bg-dark-tech flex justify-center items-center text-white font-display text-2xl">Loading Station...</div>;
+  if (error || !stationData) return <div className="min-h-screen bg-dark-tech flex justify-center items-center text-red-500 font-display text-2xl">{error || 'Station Not Found'}</div>;
+
+  const station = {
+    ...stationData,
+    rating: stationData.rating || 4.5,
+    image: stationData.images && stationData.images[0] ? stationData.images[0] : 'https://images.unsplash.com/photo-1593941707882-a5bba14938cb?auto=format&fit=crop&q=80&w=800',
+    description: `Premium charging hub featuring ${stationData.chargerTypes?.join(', ')} chargers. Located at ${stationData.address}, ${stationData.city}.`,
+    amenities: stationData.amenities && stationData.amenities.length > 0 
+      ? stationData.amenities.map(a => ({ icon: <FaStar />, text: a }))
+      : [
+          { icon: <FaCoffee />, text: 'Coffee Shop Nearby' },
+          { icon: <BsWifi />, text: 'Free Wi-Fi' },
+          { icon: <MdSecurity />, text: '24/7 Security' }
+        ],
+    pricing: `$${stationData.pricePerKwh}/kWh`,
+    hours: '24/7',
+    slots: Array.from({ length: stationData.totalSlots || 4 }).map((_, i) => ({
+      id: `${i + 1}`,
+      type: stationData.chargerTypes ? stationData.chargerTypes[i % stationData.chargerTypes.length] : 'AC',
+      status: 'Available'
+    }))
   };
 
   return (

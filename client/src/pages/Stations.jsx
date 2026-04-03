@@ -8,12 +8,8 @@ const Stations = () => {
   const [filters, setFilters] = useState({});
   const { stations, loading, error } = useStations(filters);
 
-  // Fallback to dummy if empty to prevent empty screen on first boot
-  const dummyStations = [
-    { id: 1, name: 'VoltHub Downtown', address: '124 Main St, City Center', rating: 4.8, chargerCount: 12, price: 0.35, available: true, targetImage: 'https://images.unsplash.com/photo-1593941707882-a5bba14938cb?auto=format&fit=crop&q=80&w=800' },
-  ];
-  
-  const displayData = stations.length > 0 ? stations.map(s => ({
+  const fallbackImage = 'https://images.unsplash.com/photo-1593941707882-a5bba14938cb?auto=format&fit=crop&q=80&w=800';
+  const displayData = stations.map(s => ({
       id: s._id,
       name: s.name,
       address: s.address,
@@ -21,8 +17,8 @@ const Stations = () => {
       chargerCount: s.totalSlots,
       price: s.pricePerKwh,
       available: s.isActive,
-      targetImage: s.images && s.images[0] ? s.images[0] : dummyStations[0].targetImage
-  })) : dummyStations;
+      targetImage: s.images && s.images[0] ? s.images[0] : fallbackImage
+  }));
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

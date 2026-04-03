@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { MdClose, MdEvStation } from 'react-icons/md';
 import { BsLightningChargeFill } from 'react-icons/bs';
+import api from '../services/api';
 
 const BookingModal = ({ isOpen, onClose, station, slot }) => {
   const [step, setStep] = useState(1);
@@ -8,16 +9,34 @@ const BookingModal = ({ isOpen, onClose, station, slot }) => {
   const [time, setTime] = useState('');
   const [chargerType, setChargerType] = useState('css');
   const [vehicle, setVehicle] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [bookingId, setBookingId] = useState('');
   
   if (!isOpen) return null;
 
   const handleNext = () => setStep(step + 1);
   const handleBack = () => setStep(step - 1);
   
-  const handleConfirm = () => {
-
-    const bookingId = Math.random().toString(36).substring(2, 10).toUpperCase();
-    setStep(4); 
+  const handleConfirm = async () => {
+    setLoading(true);
+    try {
+      const response = await api.post('/bookings', {
+        stationId: station._id,
+        slotId: slot || '1',
+        date,
+        startTime: time,
+        endTime: 'TBD',
+        chargerType,
+        vehicleInfo: { model: vehicle },
+        totalCost: 15.00
+      });
+      setBookingId(response.data.data._id.substring(0, 8).toUpperCase());
+      setStep(4);
+    } catch(err) {
+      alert(err.response?.data?.message || 'Failed to book slot');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -133,16 +152,15 @@ const BookingModal = ({ isOpen, onClose, station, slot }) => {
               By confirming, you agree that your slot will be held for 15 minutes past the arrival time. A no-show fee of $5 may apply.
             </p>
             <div className="flex justify-between">
-              <button onClick={handleBack} className="text-slate-400 hover:text-white px-6 py-2 transition-colors font-body">
+              <button onClick={handleBack} disabled={loading} className="text-slate-400 hover:text-white px-6 py-2 transition-colors font-body disabled:opacity-50">
                 Back
               </button>
-              <button onClick={handleConfirm} className="bg-ev-cyan text-dark-tech px-6 py-2 rounded font-bold font-body hover:bg-[#00b8e6] shadow-[0_0_15px_rgba(0,212,255,0.4)] transition-all">
-                Confirm Booking
+              <button onClick={handleConfirm} disabled={loading} className="bg-ev-cyan text-dark-tech px-6 py-2 rounded font-bold font-body hover:bg-[#00b8e6] shadow-[0_0_15px_rgba(0,212,255,0.4)] transition-all disabled:opacity-50">
+                {loading ? 'Confirming...' : 'Confirm Booking'}
               </button>
             </div>
           </div>
         )}
-
 
         {step === 4 && (
           <div className="animate-fade-in text-center py-6">
@@ -155,9 +173,9 @@ const BookingModal = ({ isOpen, onClose, station, slot }) => {
             </p>
             <div className="bg-dark-tech border border-ev-green/30 p-4 rounded mb-8 inline-block">
               <div className="text-sm text-slate-500 font-body uppercase tracking-wider mb-1">Booking ID</div>
-              <div className="text-xl font-display font-bold text-ev-green">{Math.random().toString(36).substring(2, 10).toUpperCase()}</div>
+              <div className="text-xl font-display font-bold text-ev-green">{bookingId}</div>
             </div>
-            <button onClick={onClose} className="w-full bg-slate-800 text-white px-6 py-3 rounded font-bold font-body hover:bg-slate-700 transition-colors">
+            <button onClick={() => { onClose(); window.location.href = '/dashboard'; }} className="w-full bg-slate-800 text-white px-6 py-3 rounded font-bold font-body hover:bg-slate-700 transition-colors">
               Go to Dashboard
             </button>
           </div>

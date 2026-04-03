@@ -18,7 +18,7 @@ export const getUsers = async (req, res, next) => {
 
 export const updateUserProfile = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user.id);
+    const user = req.user;
 
     if (user) {
       user.name = req.body.name || user.name;

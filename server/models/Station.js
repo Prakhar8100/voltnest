@@ -55,7 +55,7 @@ const stationSchema = new mongoose.Schema(
     },
     ownerId: {
       type: mongoose.Schema.ObjectId,
-      ref: 'User',
+      ref: 'Admin',
       required: true,
     },
   },

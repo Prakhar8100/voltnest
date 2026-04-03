@@ -13,8 +13,7 @@ const bookingSchema = new mongoose.Schema(
       required: true,
     },
     slotId: {
-      type: mongoose.Schema.ObjectId,
-      ref: 'Slot',
+      type: String,
       required: true,
     },
     date: {

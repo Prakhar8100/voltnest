@@ -31,8 +31,11 @@ export const AuthProvider = ({ children }) => {
     return data;
   };
 
-  const register = async (name, email, password, role = 'user') => {
-    const { data } = await api.post('/auth/register', { name, email, password, role });
+  const register = async (name, email, password, role = 'user', profileImage = null, stationDetails = null) => {
+    const payload = { name, email, password, role };
+    if (profileImage) payload.profileImage = profileImage;
+    if (stationDetails) payload.stationDetails = stationDetails;
+    const { data } = await api.post('/auth/register', payload);
     localStorage.setItem('token', data.data.token);
     setUser(data.data);
     return data;
@@ -41,6 +44,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('token');
     setUser(null);
+    window.location.href = '/';
   };
 
   return (

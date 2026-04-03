@@ -11,6 +11,29 @@ const Register = () => {
   const [role, setRole] = useState('user');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [profileImage, setProfileImage] = useState('');
+  
+  const handleImageUpload = (e, setBase64) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setBase64(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  
+  // Station Details (for Admin)
+  const [stationName, setStationName] = useState('');
+  const [stationAddress, setStationAddress] = useState('');
+  const [stationCity, setStationCity] = useState('');
+  const [stationLat, setStationLat] = useState('');
+  const [stationLng, setStationLng] = useState('');
+  const [stationPrice, setStationPrice] = useState('');
+  const [stationImage, setStationImage] = useState('');
+  const [stationSlots, setStationSlots] = useState('');
+
   const navigate = useNavigate();
   const { register } = useAuth();
 
@@ -22,7 +45,25 @@ const Register = () => {
     }
     
     try {
-      const res = await register(name, email, password, role);
+      let stationDetails = null;
+      if (role === 'admin') {
+        if (!stationName || !stationAddress || !stationCity || !stationLat || !stationLng || !stationPrice) {
+          setError('Please fill in all station fields');
+          return;
+        }
+        stationDetails = {
+          name: stationName,
+          address: stationAddress,
+          city: stationCity,
+          lat: stationLat,
+          lng: stationLng,
+          pricePerKwh: stationPrice,
+          totalSlots: stationSlots || 1,
+          images: stationImage ? [stationImage] : []
+        };
+      }
+      
+      const res = await register(name, email, password, role, profileImage, stationDetails);
       setError('');
       if (res.data.role === 'admin') {
         navigate('/admin');
@@ -90,6 +131,20 @@ const Register = () => {
 
             <div>
               <label className="block text-sm font-medium text-slate-300 font-body mb-2">
+                Profile Picture
+              </label>
+              <div className="mt-1">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleImageUpload(e, setProfileImage)}
+                  className="appearance-none block w-full px-3 py-2 border border-slate-700 rounded-md shadow-sm focus:outline-none focus:ring-ev-green focus:border-ev-green sm:text-sm bg-dark-tech text-white font-body transition-colors"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-300 font-body mb-2">
                 Account Type
               </label>
               <div className="mt-1">
@@ -103,6 +158,47 @@ const Register = () => {
                 </select>
               </div>
             </div>
+
+            {role === 'admin' && (
+              <div className="space-y-4 border-t border-slate-700 pt-4 mt-4">
+                <h3 className="text-white font-display font-medium">Station Details</h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs text-slate-300 font-body mb-1">Station Name</label>
+                    <input type="text" value={stationName} onChange={(e) => setStationName(e.target.value)} className="appearance-none block w-full px-3 py-2 border border-slate-700 rounded-md bg-dark-tech text-white text-sm" placeholder="VoltHub Supercharger" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-slate-300 font-body mb-1">City</label>
+                    <input type="text" value={stationCity} onChange={(e) => setStationCity(e.target.value)} className="appearance-none block w-full px-3 py-2 border border-slate-700 rounded-md bg-dark-tech text-white text-sm" placeholder="New York" />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-xs text-slate-300 font-body mb-1">Full Address</label>
+                    <input type="text" value={stationAddress} onChange={(e) => setStationAddress(e.target.value)} className="appearance-none block w-full px-3 py-2 border border-slate-700 rounded-md bg-dark-tech text-white text-sm" placeholder="123 Electric Ave" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-slate-300 font-body mb-1">Latitude</label>
+                    <input type="number" step="any" value={stationLat} onChange={(e) => setStationLat(e.target.value)} className="appearance-none block w-full px-3 py-2 border border-slate-700 rounded-md bg-dark-tech text-white text-sm" placeholder="40.7128" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-slate-300 font-body mb-1">Longitude</label>
+                    <input type="number" step="any" value={stationLng} onChange={(e) => setStationLng(e.target.value)} className="appearance-none block w-full px-3 py-2 border border-slate-700 rounded-md bg-dark-tech text-white text-sm" placeholder="-74.0060" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-slate-300 font-body mb-1">Price per Hour/kWh ($)</label>
+                    <input type="number" step="0.01" value={stationPrice} onChange={(e) => setStationPrice(e.target.value)} className="appearance-none block w-full px-3 py-2 border border-slate-700 rounded-md bg-dark-tech text-white text-sm" placeholder="10.50" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-slate-300 font-body mb-1">Total Slots</label>
+                    <input type="number" value={stationSlots} onChange={(e) => setStationSlots(e.target.value)} className="appearance-none block w-full px-3 py-2 border border-slate-700 rounded-md bg-dark-tech text-white text-sm" placeholder="5" />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-xs text-slate-300 font-body mb-1">Station Image Upload</label>
+                    <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, setStationImage)} className="appearance-none block w-full px-3 py-2 border border-slate-700 rounded-md bg-dark-tech text-white text-sm" />
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div>
               <label className="block text-sm font-medium text-slate-300 font-body mb-2">

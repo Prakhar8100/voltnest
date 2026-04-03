@@ -11,11 +11,7 @@ export const createBooking = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Station not found' });
     }
 
-    const slot = await Slot.findById(slotId);
-    if (!slot) {
-      // Create slot if dummy and doesn't exist
-      // Real app might pre-seed slots or validate they exist
-    }
+    // Removed strict slot lookup dependency so bookings can flexibly use string identifiers
 
     const booking = await Booking.create({
       userId: req.user.id,
