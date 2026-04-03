@@ -12,7 +12,7 @@ import bookingRoutes from './routes/bookingRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 
 
-// Force Nodemon restart to load .env
+
 dotenv.config();
 
 
@@ -50,6 +50,6 @@ const server = app.listen(
 
 process.on('unhandledRejection', (err, promise) => {
   console.log(`Error: ${err.message}`);
-  
+
   server.close(() => process.exit(1));
 });
