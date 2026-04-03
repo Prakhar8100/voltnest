@@ -27,6 +27,22 @@ const Stations = () => {
     targetImage: s.images && s.images[0] ? s.images[0] : fallbackImage
   }));
 
+  const handleFilterToggle = (key, value) => {
+    setFilters(prev => {
+      if (prev[key] === value) {
+        const newFilters = { ...prev };
+        delete newFilters[key];
+        return newFilters;
+      }
+      return { ...prev, [key]: value };
+    });
+  };
+
+  const resetFilters = () => {
+    setFilters({});
+    setSearchTerm('');
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
@@ -36,69 +52,49 @@ const Stations = () => {
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-8">
-
-        <div className="w-full lg:w-64 shrink-0 bg-dark-tech-light border border-slate-800 rounded-xl p-6 h-fit sticky top-24">
-          <div className="flex items-center gap-2 mb-6 pb-4 border-b border-slate-800">
-            <MdFilterList className="text-ev-cyan text-xl" />
-            <h2 className="font-display font-bold text-lg text-white">Filters</h2>
-          </div>
-
-          <div className="space-y-6">
-            <div>
-              <h3 className="text-sm font-bold text-slate-300 mb-3 font-body uppercase tracking-wider">Charger Type</h3>
-              <div className="space-y-2">
-                {['DC Fast (Level 3)', 'AC Fast (Level 2)', 'AC Standard'].map(type => (
-                  <label key={type} className="flex items-center gap-2 text-slate-400 font-body cursor-pointer hover:text-white transition-colors">
-                    <input type="checkbox" className="form-checkbox bg-dark-tech border-slate-600 rounded text-ev-green focus:ring-ev-green focus:ring-offset-dark-tech" />
-                    {type}
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-sm font-bold text-slate-300 mb-3 font-body uppercase tracking-wider">Availability</h3>
-              <div className="space-y-2">
-                <label className="flex items-center gap-2 text-slate-400 font-body cursor-pointer hover:text-white transition-colors">
-                  <input type="checkbox" className="form-checkbox bg-dark-tech border-slate-600 rounded text-ev-green focus:ring-ev-green focus:ring-offset-dark-tech" />
-                  Available Now
-                </label>
-              </div>
-            </div>
-
-            <div>
-              <div className="flex justify-between items-center mb-3">
-                <h3 className="text-sm font-bold text-slate-300 font-body uppercase tracking-wider">Max Price</h3>
-                <span className="text-ev-green text-sm">$0.80/kWh</span>
-              </div>
-              <input type="range" min="0.1" max="1.5" step="0.1" className="w-full h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-ev-cyan" />
-            </div>
-
-            <button className="w-full py-2 mt-4 bg-slate-800 hover:bg-slate-700 text-white rounded font-body transition-colors">
-              Reset Filters
-            </button>
-          </div>
-        </div>
-
-
-        <div className="flex-1">
-
-          <div className="relative mb-8">
+      <div className="flex flex-col gap-6">
+        
+        {/* Search and Top Filter Bar */}
+        <div className="flex flex-col md:flex-row gap-4 items-center">
+          <div className="relative flex-1 w-full">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <MdSearch className="h-6 w-6 text-slate-400" />
             </div>
             <input
               type="text"
-              className="block w-full pl-12 pr-4 py-4 bg-dark-tech-light border border-slate-700 rounded-xl leading-5 bg-transparent placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-ev-green focus:border-ev-green text-white transition-colors font-body text-lg shadow-inner"
+              className="block w-full pl-12 pr-4 py-4 bg-dark-tech-light border border-slate-700 rounded-2xl leading-5 bg-transparent placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-ev-green/50 focus:border-ev-green text-white transition-all font-body text-lg shadow-inner"
               placeholder="Search by location, zip code, or station name..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
+          
+          <div className="hidden md:flex items-center gap-2 bg-dark-tech-light p-2 rounded-2xl border border-slate-700">
+             {['DC', 'AC'].map(type => (
+               <button 
+                key={type}
+                onClick={() => handleFilterToggle('chargerType', type)}
+                className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${filters.chargerType === type ? 'bg-ev-green text-dark-tech shadow-[0_0_15px_rgba(0,255,135,0.4)]' : 'text-slate-400 hover:text-white hover:bg-slate-700'}`}
+               >
+                 {type} Chargers
+               </button>
+             ))}
+             <button 
+              onClick={() => handleFilterToggle('available', filters.available === 'true' ? undefined : 'true')}
+              className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${filters.available === 'true' ? 'bg-ev-cyan text-dark-tech shadow-[0_0_15px_rgba(0,212,255,0.4)]' : 'text-slate-400 hover:text-white hover:bg-slate-700'}`}
+             >
+                Available Only
+             </button>
+             <div className="w-px h-6 bg-slate-700 mx-2"></div>
+             <button onClick={resetFilters} className="px-4 py-2 text-slate-400 hover:text-white text-sm font-bold transition-colors">Reset</button>
+          </div>
+        </div>
 
+        <div className="flex flex-col gap-8">
+          <div className="flex-1">
 
-          <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {/* Cards Grid */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {loading ? (
               <div className="text-white col-span-3 text-center py-10 font-display">Loading Stations...</div>
             ) : error ? (
@@ -120,6 +116,30 @@ const Stations = () => {
               <button className="w-10 h-10 rounded border border-slate-700 flex items-center justify-center text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">&gt;</button>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+    
+      {/* Sticky Bottom Mobile Filter Bar */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 md:hidden">
+        <div className="bg-dark-tech-light/80 backdrop-blur-xl border border-slate-700 rounded-full px-6 py-3 flex items-center gap-6 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+           <button 
+            onClick={() => handleFilterToggle('chargerType', filters.chargerType === 'DC' ? 'AC' : 'DC')}
+            className={`flex flex-col items-center gap-0.5 ${filters.chargerType ? 'text-ev-green' : 'text-slate-400'}`}
+           >
+             <MdFilterList size={18} />
+             <span className="text-[10px] font-bold uppercase tracking-tighter">{filters.chargerType || 'Type'}</span>
+           </button>
+           <div className="w-px h-6 bg-slate-700"></div>
+           <button 
+            onClick={() => handleFilterToggle('available', filters.available === 'true' ? undefined : 'true')}
+            className={`flex flex-col items-center gap-0.5 ${filters.available === 'true' ? 'text-ev-cyan' : 'text-slate-400'}`}
+           >
+              <div className={`w-2 h-2 rounded-full ${filters.available === 'true' ? 'bg-ev-cyan animate-pulse' : 'bg-slate-500'}`}></div>
+              <span className="text-[10px] font-bold uppercase tracking-tighter">Live</span>
+           </button>
+           <div className="w-px h-6 bg-slate-700"></div>
+           <button onClick={resetFilters} className="text-slate-400 font-bold text-[10px] uppercase">Reset</button>
         </div>
       </div>
     </div>

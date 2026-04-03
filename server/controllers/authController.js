@@ -9,10 +9,11 @@ export const registerUser = async (req, res, next) => {
 
     const Model = role === 'admin' ? Admin : User;
     
-    const userExists = await Model.findOne({ email });
+    const userExistsInUsers = await User.findOne({ email });
+    const userExistsInAdmins = await Admin.findOne({ email });
 
-    if (userExists) {
-      return res.status(400).json({ success: false, message: 'User already exists' });
+    if (userExistsInUsers || userExistsInAdmins) {
+      return res.status(400).json({ success: false, message: 'User with this email already exists' });
     }
 
     const userData = {
@@ -72,33 +73,48 @@ export const loginUser = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    let user = await User.findOne({ email }).select('+password');
+    // Check regular users first
+    let foundUser = await User.findOne({ email }).select('+password');
     let isMatch = false;
 
-    if (user) {
-      isMatch = await user.matchPassword(password);
-    } else {
-      user = await Admin.findOne({ email }).select('+password');
-      if (user) {
-        isMatch = await user.matchPassword(password);
+    if (foundUser) {
+      isMatch = await foundUser.matchPassword(password);
+      if (isMatch) {
+         return res.json({
+           success: true,
+           data: {
+             _id: foundUser.id,
+             name: foundUser.name,
+             email: foundUser.email,
+             role: foundUser.role,
+             profileImage: foundUser.profileImage,
+             token: generateToken(foundUser._id, foundUser.role),
+           },
+         });
       }
     }
 
-    if (!user || !isMatch) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+    // If not found in users or password failed, check admins
+    foundUser = await Admin.findOne({ email }).select('+password');
+    if (foundUser) {
+      isMatch = await foundUser.matchPassword(password);
+      if (isMatch) {
+        return res.json({
+          success: true,
+          data: {
+            _id: foundUser.id,
+            name: foundUser.name,
+            email: foundUser.email,
+            role: foundUser.role,
+            profileImage: foundUser.profileImage,
+            token: generateToken(foundUser._id, foundUser.role),
+          },
+        });
+      }
     }
 
-    res.json({
-      success: true,
-      data: {
-        _id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        profileImage: user.profileImage,
-        token: generateToken(user._id, user.role),
-      },
-    });
+    // If neither matched
+    return res.status(401).json({ success: false, message: 'Invalid credentials' });
   } catch (error) {
     next(error);
   }
