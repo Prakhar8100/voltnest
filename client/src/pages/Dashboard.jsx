@@ -18,6 +18,16 @@ const Dashboard = () => {
   // Form State
   const [profileForm, setProfileForm] = useState({ name: '', phone: '' });
   const [profileMessage, setProfileMessage] = useState('');
+  const [profileImageFile, setProfileImageFile] = useState('');
+
+  const handleProfileImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => setProfileImageFile(reader.result);
+      reader.readAsDataURL(file);
+    }
+  };
 
   // Chat State
   const [activeChatBooking, setActiveChatBooking] = useState(null);
@@ -57,7 +67,9 @@ const Dashboard = () => {
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
     try {
-      await api.put('/users/profile', profileForm);
+      const payload = { ...profileForm };
+      if (profileImageFile) payload.profileImage = profileImageFile;
+      await api.put('/users/profile', payload);
       setProfileMessage('Profile updated successfully! Refreshing...');
       setTimeout(() => window.location.reload(), 1500);
     } catch (err) {
@@ -219,6 +231,25 @@ const Dashboard = () => {
             <h3 className="text-white font-display font-bold text-xl mb-6">Profile Details</h3>
             <form onSubmit={handleProfileUpdate} className="max-w-md space-y-4 font-body">
                {profileMessage && <div className="bg-green-500/10 text-green-400 border border-green-500/30 p-3 rounded text-sm">{profileMessage}</div>}
+               
+               {/* Profile Image Preview & Upload */}
+               <div className="flex items-center gap-4 pb-4 border-b border-slate-700/50">
+                 <div className="w-20 h-20 rounded-full border-2 border-ev-cyan overflow-hidden bg-slate-700 flex items-center justify-center shrink-0">
+                   {profileImageFile ? (
+                     <img src={profileImageFile} alt="Preview" className="w-full h-full object-cover" />
+                   ) : user?.profileImage ? (
+                     <img src={user.profileImage} alt="Profile" className="w-full h-full object-cover" />
+                   ) : (
+                     <MdPerson className="text-4xl text-slate-400" />
+                   )}
+                 </div>
+                 <div className="flex-1">
+                   <label className="block text-sm text-slate-400 mb-1">Profile Picture</label>
+                   <input type="file" accept="image/*" onChange={handleProfileImageUpload} className="w-full bg-dark-tech border border-slate-700 rounded p-2 text-white text-sm" />
+                   <p className="text-xs text-slate-500 mt-1">JPG, PNG or GIF. Recommended: square image.</p>
+                 </div>
+               </div>
+
                <div>
                  <label className="block text-sm text-slate-400 mb-1">Full Name</label>
                  <input type="text" className="w-full bg-dark-tech border border-slate-700 rounded p-2 text-white" value={profileForm.name} onChange={(e) => setProfileForm({...profileForm, name: e.target.value})} />

@@ -24,10 +24,14 @@ export const updateUserProfile = async (req, res, next) => {
       user.name = req.body.name || user.name;
       user.phone = req.body.phone || user.phone;
       
+      if (req.body.profileImage) {
+        user.profileImage = req.body.profileImage;
+      }
+
       if (req.body.vehicle) {
         user.vehicle = {
-          model: req.body.vehicle.model || user.vehicle.model,
-          licensePlate: req.body.vehicle.licensePlate || user.vehicle.licensePlate,
+          model: req.body.vehicle.model || user.vehicle?.model,
+          licensePlate: req.body.vehicle.licensePlate || user.vehicle?.licensePlate,
         };
       }
 
@@ -45,6 +49,7 @@ export const updateUserProfile = async (req, res, next) => {
           email: updatedUser.email,
           role: updatedUser.role,
           phone: updatedUser.phone,
+          profileImage: updatedUser.profileImage,
           vehicle: updatedUser.vehicle,
         },
       });
