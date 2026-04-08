@@ -90,3 +90,28 @@ h1, h2, h3, h4, h5, h6 {
     animation: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 }
+
+/* Custom Leaflet Dark Theme Overrides */
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  width: auto !important;
+}
+
+/* Dark mode controls */
+.leaflet-bar a {
+  background-color: var(--color-dark-tech-light) !important;
+  color: var(--color-ev-green) !important;
+  border-bottom: 1px solid #334155 !important;
+}
+.leaflet-bar a:hover {
+  background-color: #334155 !important;
+}
+.leaflet-control-zoom-in, .leaflet-control-zoom-out {
+  font-weight: bold;
+}

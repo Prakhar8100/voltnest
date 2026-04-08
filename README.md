@@ -3,6 +3,7 @@
 VoltNest is a premium, high-tech EV (Electric Vehicle) Charging Station Management and Booking Platform. It features a stunning **dark-tech aesthetic** with a focus on immersive user experience, real-time data, and seamless booking flows.
 
 ## 🚀 Recent Updates
+*   **Interactive Dark Maps**: Integrated `React-Leaflet` with a custom dark-themed CartoDB map layer, allowing users to visually browse stations alongside directory listings on both desktop and mobile.
 *   **Dynamic Responsive UI**: Completely redesigned Login and Register pages with a sophisticated two-column layout for desktop and a fluid, touch-optimized experience for mobile.
 *   **Advanced Mini-Animations**: Integrated custom CSS "blob" animations and blurred glassmorphism effects for a premium "Apple-like" feel.
 *   **Smart Navigation**: The Navbar now dynamically updates based on authentication state, hiding login/signup buttons and showing a context-aware Dashboard (Admin vs. User) and Logout option.
@@ -11,7 +12,7 @@ VoltNest is a premium, high-tech EV (Electric Vehicle) Charging Station Manageme
 ## 🌟 Key Features
 
 **For EV Drivers (Users):**
-*   **Station Finder:** Search and filter stations by name, city, or charger type (AC/DC/Fast) with live availability.
+*   **Interactive Station Finder:** Search and filter stations using a beautiful, real-time map interface paired with live availability and custom marker popups.
 *   **Premium Dashboards:** Track active charging progress via animated gauges and manage your booking history.
 *   **Seamless Booking:** Reserve specific slots with date/duration mapping tailored to your vehicle.
 *   **Secure Auth:** JWT-based authentication with high-end, responsive form layouts.
@@ -26,6 +27,7 @@ VoltNest is a premium, high-tech EV (Electric Vehicle) Charging Station Manageme
 **Frontend (`/client`)**
 *   **React.js (Vite)**: Lighting fast HMR development.
 *   **Tailwind CSS v4**: Utilizing the latest `@theme` engine for custom brand variables.
+*   **React Leaflet**: Open-source, high-performance interactive maps with custom markers and CSS overrides.
 *   **Glassmorphism & SFX**: Custom backdrop filters and CSS keyframe animations (`animate-blob`, `animate-fade-in`).
 *   **React Router v6**: Protected and role-based routing.
 *   **Lucide & React Icons**: Modern iconography.

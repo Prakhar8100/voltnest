@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { MdSearch, MdFilterList } from 'react-icons/md';
+import { MdSearch, MdFilterList, MdMap, MdList } from 'react-icons/md';
 import StationCard from '../components/StationCard';
+import StationMap from '../components/StationMap';
 import { useStations } from '../hooks/useStations';
 
 const Stations = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({});
+  const [viewMode, setViewMode] = useState('list'); // 'list' | 'map' - used for mobile/tablet toggling
   const { stations, loading, error } = useStations(filters);
 
   const fallbackImage = 'https://images.unsplash.com/photo-1593941707882-a5bba14938cb?auto=format&fit=crop&q=80&w=800';
@@ -24,7 +26,9 @@ const Stations = () => {
     chargerCount: s.totalSlots,
     price: s.pricePerKwh || 0,
     available: s.isActive,
-    targetImage: s.images && s.images[0] ? s.images[0] : fallbackImage
+    targetImage: s.images && s.images[0] ? s.images[0] : fallbackImage,
+    lat: s.coordinates?.lat,
+    lng: s.coordinates?.lng
   }));
 
   const handleFilterToggle = (key, value) => {
@@ -44,11 +48,27 @@ const Stations = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
         <div>
           <h1 className="text-4xl font-display font-bold text-white mb-2">Find a Station</h1>
           <p className="text-slate-400 font-body">Locate and book available charging slots near you.</p>
+        </div>
+        
+        {/* Toggle View on Mobile/Tablet */}
+        <div className="flex lg:hidden bg-dark-tech-light p-1 rounded-xl border border-slate-700 self-end">
+           <button 
+             onClick={() => setViewMode('list')}
+             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${viewMode === 'list' ? 'bg-ev-green text-dark-tech' : 'text-slate-400 hover:text-white'}`}
+           >
+             <MdList size={20} /> List
+           </button>
+           <button 
+             onClick={() => setViewMode('map')}
+             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${viewMode === 'map' ? 'bg-ev-green text-dark-tech' : 'text-slate-400 hover:text-white'}`}
+           >
+             <MdMap size={20} /> Map
+           </button>
         </div>
       </div>
 
@@ -90,15 +110,17 @@ const Stations = () => {
           </div>
         </div>
 
-        <div className="flex flex-col gap-8">
-          <div className="flex-1">
+        <div className="flex flex-col lg:flex-row gap-8 items-start">
+          
+          {/* Main List Column */}
+          <div className={`flex-1 w-full ${viewMode === 'map' ? 'hidden lg:block' : 'block'}`}>
 
           {/* Cards Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-3 gap-6">
             {loading ? (
-              <div className="text-white col-span-3 text-center py-10 font-display">Loading Stations...</div>
+              <div className="text-white col-span-full text-center py-10 font-display">Loading Stations...</div>
             ) : error ? (
-              <div className="text-red-400 col-span-3 text-center py-10 font-display">{error}</div>
+              <div className="text-red-400 col-span-full text-center py-10 font-display">{error}</div>
             ) : (
               displayData.map(station => (
                 <StationCard key={station.id} station={station} />
@@ -116,8 +138,13 @@ const Stations = () => {
               <button className="w-10 h-10 rounded border border-slate-700 flex items-center justify-center text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">&gt;</button>
             </div>
           </div>
+          </div>
+          
+          {/* Map Column */}
+          <div className={`w-full lg:w-[450px] xl:w-[600px] h-[600px] lg:h-[calc(100vh-200px)] sticky top-24 ${viewMode === 'list' ? 'hidden lg:block' : 'block'}`}>
+            <StationMap stations={displayData} />
+          </div>
         </div>
-      </div>
     </div>
     
       {/* Sticky Bottom Mobile Filter Bar */}
