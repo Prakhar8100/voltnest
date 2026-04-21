@@ -151,7 +151,23 @@ const Dashboard = () => {
             )}
           </div>
           <h2 className="text-center font-display font-bold text-lg text-white">{user?.name}</h2>
-          <p className="text-center text-slate-400 text-sm font-body">{user?.role === 'admin' ? 'Station Owner' : 'EV Driver'}</p>
+          <p className="text-center text-slate-400 text-sm font-body mb-2">{user?.role === 'admin' ? 'Station Owner' : 'EV Driver'}</p>
+          
+          {user?.role === 'user' && (
+            <div className="text-center bg-dark-tech rounded-lg p-2 border border-slate-700 mt-2">
+              <div className="text-ev-green font-bold text-lg flex items-center justify-center gap-1">
+                <BsLightningChargeFill className="text-sm" /> 
+                {user?.voltPoints || 0} <span className="text-xs text-slate-400 font-normal">pts</span>
+              </div>
+              <div className="flex flex-wrap gap-1 justify-center mt-2">
+                {(user?.ecoBadges || []).map((badge, idx) => (
+                   <span key={idx} className="bg-gradient-to-r from-green-500 to-emerald-500 text-white text-[10px] px-2 py-0.5 rounded-full shadow-[0_0_5px_rgba(16,185,129,0.5)]">
+                     {badge}
+                   </span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         <nav className="bg-dark-tech-light border border-slate-800 rounded-xl overflow-hidden font-body flex flex-row md:flex-col overflow-x-auto">

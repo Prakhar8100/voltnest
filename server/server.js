@@ -5,18 +5,18 @@ import morgan from 'morgan';
 
 import connectDB from './config/db.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import simulateChargers from './utils/chargerSimulator.js';
 
 import authRoutes from './routes/authRoutes.js';
 import stationRoutes from './routes/stationRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
 import userRoutes from './routes/userRoutes.js';
-
-
+import reviewRoutes from './routes/reviewRoutes.js';
 
 dotenv.config();
 
-
 connectDB();
+simulateChargers();
 
 const app = express();
 

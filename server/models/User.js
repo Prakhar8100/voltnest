@@ -29,7 +29,7 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['user', 'admin'],
+      enum: ['user', 'admin', 'staff'],
       default: 'user',
     },
     phone: {
@@ -41,6 +41,14 @@ const userSchema = new mongoose.Schema(
     },
     resetPasswordToken: String,
     resetPasswordExpire: Date,
+    voltPoints: {
+      type: Number,
+      default: 0,
+    },
+    ecoBadges: {
+      type: [String],
+      default: [],
+    },
   },
   {
     timestamps: true,

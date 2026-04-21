@@ -1,9 +1,10 @@
 import { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MdInsertChart, MdEvStation, MdPeople, MdBook, MdAdd, MdEdit, MdDelete, MdClose, MdExitToApp, MdSend } from 'react-icons/md';
+import { MdInsertChart, MdEvStation, MdPeople, MdBook, MdAdd, MdEdit, MdDelete, MdClose, MdExitToApp, MdSend, MdAttachMoney } from 'react-icons/md';
 import { AuthContext } from '../context/AuthContext';
 import { useStations } from '../hooks/useStations';
 import api from '../services/api';
+import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -97,6 +98,38 @@ const AdminPanel = () => {
   };
   
 
+  const revenueData = [
+    { name: 'Mon', revenue: 4000, bookings: 24 },
+    { name: 'Tue', revenue: 3000, bookings: 18 },
+    { name: 'Wed', revenue: 5000, bookings: 32 },
+    { name: 'Thu', revenue: 4500, bookings: 28 },
+    { name: 'Fri', revenue: 7000, bookings: 45 },
+    { name: 'Sat', revenue: 9000, bookings: 60 },
+    { name: 'Sun', revenue: 8500, bookings: 55 },
+  ];
+
+  const chargerUsageData = [
+    { name: 'DC Fast (CCS)', value: 65, color: '#00e676' },
+    { name: 'Level 2 AC', value: 25, color: '#00D4FF' },
+    { name: 'CHAdeMO', value: 10, color: '#FACC15' },
+  ];
+
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-dark-tech border border-slate-700 p-3 rounded-lg shadow-xl">
+          <p className="text-white font-bold mb-1">{label}</p>
+          {payload.map((entry, index) => (
+            <p key={index} style={{ color: entry.color }} className="text-sm">
+              {entry.name}: {entry.name === 'revenue' ? '$' : ''}{entry.value}
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col md:flex-row gap-8">
   
@@ -130,75 +163,95 @@ const AdminPanel = () => {
         
         
         {activeTab === 'overview' && (
-          <>
+          <div className="space-y-8 animate-fade-in">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-dark-tech-light border border-slate-800 rounded-xl p-6">
-                <div className="text-slate-400 font-body uppercase tracking-wider text-xs mb-2">Total Revenue</div>
-                <div className="font-display font-bold text-3xl text-white">$45.2k</div>
+              <div className="bg-gradient-to-br from-dark-tech-light to-[#0a111a] border border-slate-800 rounded-xl p-6 shadow-lg">
+                <div className="text-slate-400 font-body uppercase tracking-wider text-xs mb-2">Weekly Revenue</div>
+                <div className="font-display font-bold text-3xl text-ev-green">$41.0k</div>
               </div>
-              <div className="bg-dark-tech-light border border-slate-800 rounded-xl p-6">
+              <div className="bg-gradient-to-br from-dark-tech-light to-[#0a111a] border border-slate-800 rounded-xl p-6 shadow-lg">
                 <div className="text-slate-400 font-body uppercase tracking-wider text-xs mb-2">Active Users</div>
-                <div className="font-display font-bold text-3xl text-white">12.4k</div>
+                <div className="font-display font-bold text-3xl text-ev-cyan">1,240</div>
               </div>
-              <div className="bg-dark-tech-light border border-slate-800 rounded-xl p-6">
+              <div className="bg-gradient-to-br from-dark-tech-light to-[#0a111a] border border-slate-800 rounded-xl p-6 shadow-lg">
                 <div className="text-slate-400 font-body uppercase tracking-wider text-xs mb-2">Total Sessions</div>
-                <div className="font-display font-bold text-3xl text-white">84.1k</div>
+                <div className="font-display font-bold text-3xl text-white">8,410</div>
               </div>
-              <div className="bg-dark-tech-light border border-slate-800 rounded-xl p-6">
+              <div className="bg-gradient-to-br from-dark-tech-light to-[#0a111a] border border-slate-800 rounded-xl p-6 shadow-lg">
                 <div className="text-slate-400 font-body uppercase tracking-wider text-xs mb-2">Avg Session</div>
                 <div className="font-display font-bold text-3xl text-white">42m</div>
               </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-8">
+            <div className="grid lg:grid-cols-3 gap-8">
               
-              <div className="bg-dark-tech-light border border-slate-800 rounded-xl p-6">
-                 <h3 className="text-white font-display font-bold text-lg mb-6">Bookings (Last 7 Days)</h3>
-                 <div className="flex items-end justify-between h-48 gap-2 pt-4">
-                    {[40, 65, 45, 80, 55, 90, 75].map((val, i) => (
-                      <div key={i} className="w-full bg-slate-800 rounded-t relative group">
-                        <div className="absolute bottom-0 w-full bg-ev-cyan rounded-t transition-all group-hover:bg-[#00D4FF]" style={{ height: `${val}%` }}></div>
-                        <div className="absolute -bottom-6 w-full text-center text-xs text-slate-500">D{i+1}</div>
-                      </div>
-                    ))}
+              <div className="lg:col-span-2 bg-dark-tech-light border border-slate-800 rounded-xl p-6 shadow-lg">
+                 <h3 className="text-white font-display font-bold text-lg mb-6 flex items-center justify-between">
+                   <span>Revenue vs Bookings (7 Days)</span>
+                 </h3>
+                 <div className="h-72 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                        <defs>
+                          <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#00e676" stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor="#00e676" stopOpacity={0}/>
+                          </linearGradient>
+                          <linearGradient id="colorBookings" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#00D4FF" stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor="#00D4FF" stopOpacity={0}/>
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+                        <XAxis dataKey="name" stroke="#64748b" tick={{fill: '#64748b'}} axisLine={false} tickLine={false} />
+                        <YAxis yAxisId="left" stroke="#64748b" tick={{fill: '#64748b'}} axisLine={false} tickLine={false} tickFormatter={(val) => `$${val/1000}k`} />
+                        <YAxis yAxisId="right" orientation="right" stroke="#64748b" tick={{fill: '#64748b'}} axisLine={false} tickLine={false} />
+                        <RechartsTooltip content={<CustomTooltip />} />
+                        <Area yAxisId="left" type="monotone" dataKey="revenue" stroke="#00e676" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
+                        <Area yAxisId="right" type="monotone" dataKey="bookings" stroke="#00D4FF" strokeWidth={3} fillOpacity={1} fill="url(#colorBookings)" />
+                      </AreaChart>
+                    </ResponsiveContainer>
                  </div>
               </div>
               
-            
-              <div className="bg-dark-tech-light border border-slate-800 rounded-xl p-6">
+              <div className="bg-dark-tech-light border border-slate-800 rounded-xl p-6 shadow-lg">
                  <h3 className="text-white font-display font-bold text-lg mb-6">Charger Type Usage</h3>
-                 <div className="space-y-6">
-                    <div>
-                      <div className="flex justify-between text-sm mb-1 font-body">
-                        <span className="text-slate-300">DC Fast (CCS)</span>
-                        <span className="text-white font-bold">65%</span>
-                      </div>
-                      <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
-                        <div className="h-full bg-ev-green w-[65%]"></div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between text-sm mb-1 font-body">
-                        <span className="text-slate-300">Level 2 AC</span>
-                        <span className="text-white font-bold">25%</span>
-                      </div>
-                      <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
-                        <div className="h-full bg-ev-cyan w-[25%]"></div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between text-sm mb-1 font-body">
-                        <span className="text-slate-300">CHAdeMO</span>
-                        <span className="text-white font-bold">10%</span>
-                      </div>
-                      <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
-                        <div className="h-full bg-yellow-400 w-[10%]"></div>
-                      </div>
+                 <div className="h-72 w-full flex flex-col justify-center relative">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={chargerUsageData}
+                          cx="50%"
+                          cy="45%"
+                          innerRadius={60}
+                          outerRadius={90}
+                          paddingAngle={5}
+                          dataKey="value"
+                          stroke="none"
+                        >
+                          {chargerUsageData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <RechartsTooltip content={<CustomTooltip />} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                    <div className="absolute bottom-0 w-full">
+                      {chargerUsageData.map((entry, i) => (
+                        <div key={i} className="flex justify-between items-center text-sm font-body mb-2">
+                           <div className="flex items-center gap-2">
+                             <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }}></div>
+                             <span className="text-slate-300">{entry.name}</span>
+                           </div>
+                           <span className="text-white font-bold">{entry.value}%</span>
+                        </div>
+                      ))}
                     </div>
                  </div>
               </div>
+
             </div>
-          </>
+          </div>
         )}
 
       
@@ -242,6 +295,21 @@ const AdminPanel = () => {
                    </select>
                    <input required type="number" min="1" placeholder="Total Slots" value={formData.totalSlots} onChange={(e) => setFormData({...formData, totalSlots: parseInt(e.target.value)})} className="bg-dark-tech border border-slate-700 rounded p-2 text-white" />
                    <input required type="number" step="0.01" placeholder="Price Per kWh" value={formData.pricePerKwh} onChange={(e) => setFormData({...formData, pricePerKwh: parseFloat(e.target.value)})} className="bg-dark-tech border border-slate-700 rounded p-2 text-white" />
+                   
+                   <div className="col-span-1 md:col-span-2 bg-slate-800/50 border border-ev-green/30 rounded p-4">
+                     <label className="flex items-center gap-2 text-ev-green font-bold text-sm mb-3">
+                       <input type="checkbox" checked={formData.surgeEnabled} onChange={(e) => setFormData({...formData, surgeEnabled: e.target.checked})} className="accent-ev-green" /> 
+                       Enable Peak-Hour Surge Pricing
+                     </label>
+                     {formData.surgeEnabled && (
+                       <div className="grid grid-cols-3 gap-2">
+                         <input type="number" step="0.1" placeholder="Multiplier (e.g. 1.5)" defaultValue={1.5} className="bg-dark-tech border border-slate-700 rounded p-2 text-white text-sm" />
+                         <input type="time" defaultValue="16:00" className="bg-dark-tech border border-slate-700 rounded p-2 text-white text-sm" />
+                         <input type="time" defaultValue="20:00" className="bg-dark-tech border border-slate-700 rounded p-2 text-white text-sm" />
+                       </div>
+                     )}
+                   </div>
+
                    <div className="col-span-1 md:col-span-2">
                      <label className="block text-xs text-slate-300 font-body mb-1">Station Image Upload</label>
                      <input type="file" accept="image/*" onChange={handleImageUpload} className="bg-dark-tech border border-slate-700 rounded p-2 text-white w-full" />
@@ -345,8 +413,44 @@ const AdminPanel = () => {
         )}
 
         {activeTab === 'users' && (
-          <div className="bg-dark-tech-light border border-slate-800 rounded-xl p-8 text-center text-slate-400 font-body">
-            User management interface is under active development. Keep an eye out for updates!
+          <div className="bg-dark-tech-light border border-slate-800 rounded-xl p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-white font-display font-bold text-xl">Manage Staff / Sub-Admins</h3>
+              <button 
+                onClick={() => alert("Staff invitations will be sent via Email in the next update!")}
+                className="bg-ev-cyan text-dark-tech hover:bg-[#00D4FF] px-4 py-2 rounded font-bold font-body flex items-center gap-1 transition-colors"
+              >
+                <MdAdd /> Invite Staff
+              </button>
+            </div>
+            
+            <div className="overflow-x-auto">
+              <table className="w-full text-left font-body text-sm">
+                <thead className="bg-slate-800/50 text-slate-400 uppercase tracking-wider text-xs">
+                  <tr>
+                    <th className="px-6 py-4">Name</th>
+                    <th className="px-6 py-4">Email</th>
+                    <th className="px-6 py-4">Role</th>
+                    <th className="px-6 py-4">Status</th>
+                    <th className="px-6 py-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/50">
+                  <tr className="hover:bg-slate-800/30 transition-colors">
+                    <td className="px-6 py-4 font-bold text-white flex items-center gap-2">
+                       <div className="w-8 h-8 rounded-full bg-slate-600 overflow-hidden"><img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100" /></div>
+                       Mike Johnson
+                    </td>
+                    <td className="px-6 py-4 text-slate-300">mike.j@voltnest.com</td>
+                    <td className="px-6 py-4"><span className="text-indigo-400 bg-indigo-400/10 px-2 py-1 rounded text-xs font-bold border border-indigo-400/20">Sub-Admin</span></td>
+                    <td className="px-6 py-4"><span className="text-ev-green bg-ev-green/10 px-2 py-1 rounded text-xs font-bold">Active</span></td>
+                    <td className="px-6 py-4 flex justify-end gap-2">
+                      <button className="text-slate-400 hover:text-white transition-colors text-xs font-bold bg-slate-800 px-2 py-1 rounded">Revoke Access</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 

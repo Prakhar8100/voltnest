@@ -38,6 +38,12 @@ const stationSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    surgePricing: {
+      enabled: { type: Boolean, default: false },
+      multiplier: { type: Number, default: 1.5 },
+      startTime: { type: String, default: '16:00' },
+      endTime: { type: String, default: '20:00' },
+    },
     amenities: {
       type: [String],
     },

@@ -10,7 +10,12 @@ import {
 import { protect } from '../middleware/authMiddleware.js';
 import { admin as adminCheck } from '../middleware/adminMiddleware.js';
 
+import reviewRouter from './reviewRoutes.js';
+
 const router = express.Router();
+
+// Re-route into other resource routers
+router.use('/:stationId/reviews', reviewRouter);
 
 router
   .route('/')

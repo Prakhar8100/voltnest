@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { MdLocationPin, MdEvStation, MdAccessTime, MdSecurity } from 'react-icons/md';
+import { MdLocationPin, MdEvStation, MdAccessTime, MdSecurity, MdPerson } from 'react-icons/md';
 import { BsLightningChargeFill, BsWifi } from 'react-icons/bs';
 import { FaCoffee, FaStar } from 'react-icons/fa';
 import BookingModal from '../components/BookingModal';
@@ -14,11 +14,21 @@ const StationDetail = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState(null);
 
+  // Review State
+  const [reviews, setReviews] = useState([]);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewTitle, setReviewTitle] = useState('');
+  const [reviewText, setReviewText] = useState('');
+  const [reviewError, setReviewError] = useState('');
+  const [reviewSuccess, setReviewSuccess] = useState('');
+
   useEffect(() => {
     const fetchStation = async () => {
       try {
         const { data } = await api.get(`/stations/${id}`);
         setStationData(data.data);
+        const reviewData = await api.get(`/stations/${id}/reviews`);
+        setReviews(reviewData.data.data);
       } catch (err) {
         setError(err.response?.data?.message || 'Failed to fetch station details');
       } finally {
@@ -31,6 +41,24 @@ const StationDetail = () => {
   const handleBook = (slotId) => {
     setSelectedSlot(slotId);
     setIsModalOpen(true);
+  };
+
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setReviewError('');
+      const { data } = await api.post(`/stations/${id}/reviews`, {
+        rating: reviewRating,
+        title: reviewTitle,
+        text: reviewText
+      });
+      setReviews([...reviews, ...[data.data]]);
+      setReviewSuccess('Review added successfully');
+      setReviewTitle('');
+      setReviewText('');
+    } catch (err) {
+      setReviewError(err.response?.data?.message || 'Failed to submit review');
+    }
   };
 
   if (loading) return <div className="min-h-screen bg-dark-tech flex justify-center items-center text-white font-display text-2xl">Loading Station...</div>;
@@ -142,6 +170,68 @@ const StationDetail = () => {
                   </div>
                 ))}
               </div>
+            </section>
+
+            <section className="bg-dark-tech-light border border-slate-800 rounded-xl p-6 md:p-8 mt-8">
+              <h2 className="text-xl font-display font-bold text-white mb-6">User Reviews</h2>
+              
+              <div className="space-y-4 mb-8">
+                {reviews.length === 0 ? (
+                   <p className="text-slate-400 font-body">No reviews yet. Be the first to review this station!</p>
+                ) : (
+                   reviews.map(review => (
+                     <div key={review._id} className="border border-slate-700 bg-dark-tech rounded-lg p-4">
+                       <div className="flex justify-between items-start mb-2">
+                         <div className="flex items-center gap-2">
+                           <div className="w-8 h-8 rounded-full bg-slate-600 overflow-hidden flex items-center justify-center">
+                              {review.user?.profileImage ? <img src={review.user.profileImage} className="w-full h-full object-cover" /> : <MdPerson className="text-slate-300" />}
+                           </div>
+                           <div>
+                             <div className="text-white font-bold text-sm">{review.user?.name || 'VoltNest User'}</div>
+                             <div className="text-slate-500 text-xs">{new Date(review.createdAt).toLocaleDateString()}</div>
+                           </div>
+                         </div>
+                         <div className="flex items-center text-yellow-400 text-sm">
+                           {Array.from({ length: 5 }).map((_, i) => (
+                              <FaStar key={i} className={i < review.rating ? 'text-yellow-400' : 'text-slate-600'} />
+                           ))}
+                         </div>
+                       </div>
+                       <h4 className="text-white font-bold text-sm mb-1">{review.title}</h4>
+                       <p className="text-slate-300 font-body text-sm leading-relaxed">{review.text}</p>
+                     </div>
+                   ))
+                )}
+              </div>
+
+              <form onSubmit={handleReviewSubmit} className="bg-dark-tech border border-slate-700 rounded-lg p-4">
+                 <h3 className="text-white font-bold mb-4 font-display">Write a Review</h3>
+                 {reviewError && <div className="text-red-400 bg-red-400/10 border border-red-400/20 p-2 rounded mb-4 text-sm">{reviewError}</div>}
+                 {reviewSuccess && <div className="text-ev-green bg-ev-green/10 border border-ev-green/20 p-2 rounded mb-4 text-sm">{reviewSuccess}</div>}
+                 
+                 <div className="mb-4">
+                   <label className="block text-slate-400 text-sm mb-2">Rating</label>
+                   <select value={reviewRating} onChange={e => setReviewRating(Number(e.target.value))} className="w-full bg-slate-800 border border-slate-700 text-white rounded p-2 focus:border-ev-cyan focus:outline-none">
+                     <option value="5">5 - Excellent</option>
+                     <option value="4">4 - Good</option>
+                     <option value="3">3 - Average</option>
+                     <option value="2">2 - Poor</option>
+                     <option value="1">1 - Terrible</option>
+                   </select>
+                 </div>
+                 
+                 <div className="mb-4">
+                   <label className="block text-slate-400 text-sm mb-2">Title</label>
+                   <input type="text" value={reviewTitle} onChange={e => setReviewTitle(e.target.value)} required placeholder="e.g. Fast chargers, great location" className="w-full bg-slate-800 border border-slate-700 text-white rounded p-2 focus:border-ev-cyan focus:outline-none" />
+                 </div>
+
+                 <div className="mb-4">
+                   <label className="block text-slate-400 text-sm mb-2">Review</label>
+                   <textarea rows="3" value={reviewText} onChange={e => setReviewText(e.target.value)} required placeholder="Share your experience..." className="w-full bg-slate-800 border border-slate-700 text-white rounded p-2 focus:border-ev-cyan focus:outline-none"></textarea>
+                 </div>
+
+                 <button type="submit" className="bg-ev-cyan hover:bg-[#00D4FF] text-dark-tech font-bold px-4 py-2 rounded transition-colors text-sm shadow-[0_0_10px_rgba(0,212,255,0.2)]">Submit Review</button>
+              </form>
             </section>
           </div>
 

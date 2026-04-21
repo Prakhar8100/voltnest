@@ -25,6 +25,35 @@ export const createBooking = async (req, res, next) => {
       totalCost,
     });
 
+    try {
+      const User = (await import('../models/User.js')).default;
+      const sendEmail = (await import('../utils/sendEmail.js')).default;
+      const user = await User.findById(req.user.id);
+      
+      const emailHtml = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e1e1e1; border-radius: 10px; background-color: #0a1118; color: white;">
+          <h2 style="color: #00e676; text-align: center;">VoltNest Confirmation</h2>
+          <p>Hi ${user.name}, your charging session is booked!</p>
+          <div style="background-color: #1a222c; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <p><strong>Station:</strong> ${station.name}</p>
+            <p><strong>Date:</strong> ${date}</p>
+            <p><strong>Time:</strong> ${startTime} - ${endTime}</p>
+            <p><strong>Cost:</strong> $${totalCost}</p>
+          </div>
+          <p style="text-align: center; color: #888;">Drive safely!</p>
+        </div>
+      `;
+
+      await sendEmail({
+        email: user.email,
+        subject: `VoltNest Booking Confirmed - ${station.name}`,
+        message: `Your booking at ${station.name} is confirmed for ${startTime}.`,
+        html: emailHtml
+      });
+    } catch(emailErr) {
+      console.log('Could not send booking receipt email:', emailErr);
+    }
+
     res.status(201).json({
       success: true,
       data: booking,
@@ -106,6 +135,27 @@ export const updateBookingStatus = async (req, res, next) => {
     // Check user ownership
     if (booking.userId.toString() !== req.user.id && req.user.role !== 'admin') {
       return res.status(401).json({ success: false, message: 'Not authorized to update this booking' });
+    }
+
+    if (status === 'completed' && booking.isModified('status')) {
+       // Gamification: Award points and add ecoBadge logic
+       const User = (await import('../models/User.js')).default;
+       const user = await User.findById(booking.userId);
+       
+       if (user) {
+         // Award 50 points per completed session
+         user.voltPoints = (user.voltPoints || 0) + 50;
+
+         // Unlock Eco Pioneer badge if reaching threshold (e.g. 500 points)
+         if (user.voltPoints >= 500 && !user.ecoBadges.includes('Eco Pioneer')) {
+            user.ecoBadges.push('Eco Pioneer');
+         }
+         if (user.voltPoints >= 200 && !user.ecoBadges.includes('Regular Charger')) {
+            user.ecoBadges.push('Regular Charger');
+         }
+
+         await user.save({ validateBeforeSave: false });
+       }
     }
 
     await booking.save();

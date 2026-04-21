@@ -7,6 +7,10 @@ VoltNest is a premium, high-tech EV (Electric Vehicle) Charging Station Manageme
 *   **Dynamic Responsive UI**: Completely redesigned Login and Register pages with a sophisticated two-column layout for desktop and a fluid, touch-optimized experience for mobile.
 *   **Advanced Mini-Animations**: Integrated custom CSS "blob" animations and blurred glassmorphism effects for a premium "Apple-like" feel.
 *   **Smart Navigation**: The Navbar now dynamically updates based on authentication state, hiding login/signup buttons and showing a context-aware Dashboard (Admin vs. User) and Logout option.
+*   **Advanced Data Visualization**: Integrated `Recharts` into the Admin panel for beautiful, interactive analytics charts covering revenue, bookings, and power consumption.
+*   **Station Reviews & Ratings**: Implemented a comprehensive review system for charging stations, allowing users to leave star ratings and feedback.
+*   **Real-time Charging Simulation**: Integrated robust back-end utilities to simulate live charging progress for active bookings.
+*   **PWA Readiness**: Added `manifest.json` for Progressive Web App capabilities, paving the way for installable native-like mobile experiences.
 *   **Enhanced Station Discovery**: Improved search logic allowing users to find stations by name, city, or address instantly.
 
 ## 🌟 Key Features
@@ -15,11 +19,12 @@ VoltNest is a premium, high-tech EV (Electric Vehicle) Charging Station Manageme
 *   **Interactive Station Finder:** Search and filter stations using a beautiful, real-time map interface paired with live availability and custom marker popups.
 *   **Premium Dashboards:** Track active charging progress via animated gauges and manage your booking history.
 *   **Seamless Booking:** Reserve specific slots with date/duration mapping tailored to your vehicle.
+*   **Community Reviews:** Read and write reviews for charging stations to help the EV community make informed decisions.
 *   **Secure Auth:** JWT-based authentication with high-end, responsive form layouts.
 
 **For Station Owners (Admins):**
 *   **Full Network Control:** Comprehensive CRUD management for charging locations via interactive modals.
-*   **Deep Analytics:** Monitor revenue, site performance, and charger utilization statistics through a high-tech data interface.
+*   **Deep Analytics:** Monitor revenue, site performance, and charger utilization statistics through a high-tech data interface utilizing interactive Recharts.
 *   **Auto-Routing:** Intelligent redirection based on user role immediately upon login.
 
 ## 🛠️ Tech Stack
@@ -31,6 +36,7 @@ VoltNest is a premium, high-tech EV (Electric Vehicle) Charging Station Manageme
 *   **Glassmorphism & SFX**: Custom backdrop filters and CSS keyframe animations (`animate-blob`, `animate-fade-in`).
 *   **React Router v6**: Protected and role-based routing.
 *   **Lucide & React Icons**: Modern iconography.
+*   **Recharts**: High-performance, composable charting library built on React components.
 
 **Backend (`/server`)**
 *   **Node.js & Express**: High-performance RESTful API.
