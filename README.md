@@ -5,7 +5,11 @@ VoltNest is a premium, high-tech EV (Electric Vehicle) Charging Station Manageme
 ## 🚀 Recent Updates
 *   **Interactive Dark Maps**: Integrated `React-Leaflet` with a custom dark-themed CartoDB map layer, allowing users to visually browse stations alongside directory listings on both desktop and mobile.
 *   **Dynamic Responsive UI**: Completely redesigned Login and Register pages with a sophisticated two-column layout for desktop and a fluid, touch-optimized experience for mobile.
-*   **Advanced Mini-Animations**: Integrated custom CSS "blob" animations and blurred glassmorphism effects for a premium "Apple-like" feel.
+*   **Premium Micro-Interactions**: Integrated `Framer Motion` for buttery soft spring physics, creating highly tactile buttons, staggered grid animations, and fluid modal transitions.
+*   **Deep Glassmorphism Architect**: Overhauled the UI with intense `backdrop-blur-3xl`, semi-transparent layers, and etched borders over an ambient drifting dot-grid, creating a true "Apple-like" command center aesthetic.
+*   **Live Radar Map Markers**: Replaced static pins with bespoke CSS-animated pulsating HTML map orbs indicating live availability directly on the Leaflet map.
+*   **Skeleton Loaders**: Drastically improved perceived speed by replacing basic text loaders with sophisticated, shimmering skeleton placeholder cards.
+*   **Global Toast Engine**: Migrated all disruptive inline alerts to elegant floating toast notifications using `react-hot-toast`.
 *   **Smart Navigation**: The Navbar now dynamically updates based on authentication state, hiding login/signup buttons and showing a context-aware Dashboard (Admin vs. User) and Logout option.
 *   **Advanced Data Visualization**: Integrated `Recharts` into the Admin panel for beautiful, interactive analytics charts covering revenue, bookings, and power consumption.
 *   **Station Reviews & Ratings**: Implemented a comprehensive review system for charging stations, allowing users to leave star ratings and feedback.
@@ -35,7 +39,9 @@ VoltNest is a premium, high-tech EV (Electric Vehicle) Charging Station Manageme
 *   **React Leaflet**: Open-source, high-performance interactive maps with custom markers and CSS overrides.
 *   **Glassmorphism & SFX**: Custom backdrop filters and CSS keyframe animations (`animate-blob`, `animate-fade-in`).
 *   **React Router v6**: Protected and role-based routing.
+*   **Framer Motion**: State-of-the-art physics-based animations and layout transitions.
 *   **Lucide & React Icons**: Modern iconography.
+*   **React Hot Toast**: Premium, customizable toast notifications.
 *   **Recharts**: High-performance, composable charting library built on React components.
 
 **Backend (`/server`)**
