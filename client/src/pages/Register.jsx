@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import { BsLightningChargeFill } from 'react-icons/bs';
 import { useAuth } from '../hooks/useAuth';
+import toast from 'react-hot-toast';
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -10,7 +11,6 @@ const Register = () => {
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('user');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [profileImage, setProfileImage] = useState('');
   
@@ -41,18 +41,17 @@ const Register = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     if (!name || !email || !password) {
-      setError('Please fill in all fields');
+      toast.error('Please fill in all fields');
       return;
     }
     if (loading) return; // prevent double submission
     
     setLoading(true);
-    setError('');
     try {
       let stationDetails = null;
       if (role === 'admin') {
         if (!stationName || !stationAddress || !stationCity || !stationLat || !stationLng || !stationPrice) {
-          setError('Please fill in all station fields');
+          toast.error('Please fill in all station fields');
           setLoading(false);
           return;
         }
@@ -69,13 +68,14 @@ const Register = () => {
       }
       
       const res = await register(name, email, password, role, profileImage, stationDetails);
+      toast.success('Account created successfully!');
       if (res.data.role === 'admin') {
         navigate('/admin');
       } else {
         navigate('/stations');
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed. The server may be waking up — please try again in 30 seconds.');
+      toast.error(err.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -106,11 +106,6 @@ const Register = () => {
           </div>
 
           <form className="space-y-5" onSubmit={handleRegister}>
-            {error && (
-              <div className="bg-red-500/10 border-l-4 border-red-500 text-red-400 text-sm p-4 rounded-r-md font-body animate-pulse">
-                {error}
-              </div>
-            )}
             
             <div className="group">
               <label className="block text-sm font-medium text-slate-300 font-body mb-2 transition-colors group-focus-within:text-ev-green">

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { MdClose, MdEvStation } from 'react-icons/md';
 import { BsLightningChargeFill } from 'react-icons/bs';
 import api from '../services/api';
+import toast from 'react-hot-toast';
 
 const BookingModal = ({ isOpen, onClose, station, slot }) => {
   const [step, setStep] = useState(1);
@@ -34,8 +35,9 @@ const BookingModal = ({ isOpen, onClose, station, slot }) => {
       });
       setBookingId(response.data.data._id.substring(0, 8).toUpperCase());
       setStep(4);
+      toast.success('Your slot has been successfully booked!');
     } catch(err) {
-      alert(err.response?.data?.message || 'Failed to book slot');
+      toast.error(err.response?.data?.message || 'Failed to book slot');
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { MdSearch, MdFilterList, MdMap, MdList } from 'react-icons/md';
 import StationCard from '../components/StationCard';
+import SkeletonStationCard from '../components/SkeletonStationCard';
 import StationMap from '../components/StationMap';
 import { useStations } from '../hooks/useStations';
 
@@ -115,15 +116,17 @@ const Stations = () => {
           {/* Main List Column */}
           <div className={`flex-1 w-full ${viewMode === 'map' ? 'hidden lg:block' : 'block'}`}>
 
-          {/* Cards Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-3 gap-6">
             {loading ? (
-              <div className="text-white col-span-full text-center py-10 font-display">Loading Stations...</div>
+              // Generate 6 skeleton cards to fill the layout perfectly while fetching
+              Array.from({ length: 6 }).map((_, idx) => (
+                <SkeletonStationCard key={`skeleton-${idx}`} index={idx} />
+              ))
             ) : error ? (
               <div className="text-red-400 col-span-full text-center py-10 font-display">{error}</div>
             ) : (
-              displayData.map(station => (
-                <StationCard key={station.id} station={station} />
+              displayData.map((station, index) => (
+                <StationCard key={station.id} station={station} index={index} />
               ))
             )}
           </div>
@@ -148,8 +151,8 @@ const Stations = () => {
     </div>
     
       {/* Sticky Bottom Mobile Filter Bar */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 md:hidden">
-        <div className="bg-dark-tech-light/80 backdrop-blur-xl border border-slate-700 rounded-full px-6 py-3 flex items-center gap-6 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 md:hidden w-11/12 max-w-[320px]">
+        <div className="bg-[#0F172A]/50 backdrop-blur-3xl border border-white/10 rounded-full px-6 py-3 flex justify-between items-center shadow-[0_8px_32px_rgba(0,0,0,0.5)] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
            <button 
             onClick={() => handleFilterToggle('chargerType', filters.chargerType === 'DC' ? 'AC' : 'DC')}
             className={`flex flex-col items-center gap-0.5 ${filters.chargerType ? 'text-ev-green' : 'text-slate-400'}`}
@@ -157,7 +160,7 @@ const Stations = () => {
              <MdFilterList size={18} />
              <span className="text-[10px] font-bold uppercase tracking-tighter">{filters.chargerType || 'Type'}</span>
            </button>
-           <div className="w-px h-6 bg-slate-700"></div>
+           <div className="w-px h-6 bg-white/10"></div>
            <button 
             onClick={() => handleFilterToggle('available', filters.available === 'true' ? undefined : 'true')}
             className={`flex flex-col items-center gap-0.5 ${filters.available === 'true' ? 'text-ev-cyan' : 'text-slate-400'}`}
@@ -165,7 +168,7 @@ const Stations = () => {
               <div className={`w-2 h-2 rounded-full ${filters.available === 'true' ? 'bg-ev-cyan animate-pulse' : 'bg-slate-500'}`}></div>
               <span className="text-[10px] font-bold uppercase tracking-tighter">Live</span>
            </button>
-           <div className="w-px h-6 bg-slate-700"></div>
+           <div className="w-px h-6 bg-white/10"></div>
            <button onClick={resetFilters} className="text-slate-400 font-bold text-[10px] uppercase">Reset</button>
         </div>
       </div>

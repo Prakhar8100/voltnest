@@ -89,6 +89,26 @@ h1, h2, h3, h4, h5, h6 {
   .animate-pulse-slow {
     animation: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
+
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  /* Dot Grid Utilities */
+  .bg-dot-grid {
+    background-image: radial-gradient(rgba(0, 255, 135, 0.15) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  
+  @keyframes grid-drift {
+    from { background-position: 0 0; }
+    to { background-position: -32px -32px; }
+  }
+  .animate-grid-drift {
+    animation: grid-drift 15s linear infinite;
+  }
 }
 
 /* Custom Leaflet Dark Theme Overrides */

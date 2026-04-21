@@ -2,31 +2,31 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { BsLightningChargeFill, BsArrowLeft, BsCheckCircleFill } from 'react-icons/bs';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email) {
-      setError('Please enter your email address');
+      toast.error('Please enter your email address');
       return;
     }
 
     setLoading(true);
-    setError('');
     setMessage('');
 
     try {
       const { data } = await axios.post('/api/v1/auth/forgotpassword', { email });
       setMessage('A reset link has been sent to your email address.');
+      toast.success('Reset link sent successfully!');
       setSubmitted(true);
     } catch (err) {
-      setError(err.response?.data?.message || 'Something went wrong. Please try again.');
+      toast.error(err.response?.data?.message || 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -84,11 +84,6 @@ const ForgotPassword = () => {
             </div>
           ) : (
             <form className="space-y-6" onSubmit={handleSubmit}>
-              {error && (
-                <div className="bg-red-500/10 border-l-4 border-red-500 text-red-400 text-sm p-4 rounded-r-md font-body">
-                  {error}
-                </div>
-              )}
               
               <div className="group">
                 <label className="block text-sm font-medium text-slate-300 font-body mb-2 transition-colors group-focus-within:text-ev-cyan">

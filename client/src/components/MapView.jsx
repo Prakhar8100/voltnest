@@ -17,11 +17,18 @@ const MapView = ({ stations = [] }) => {
             className="absolute transform -translate-x-1/2 -translate-y-full flex flex-col items-center group cursor-pointer z-10 hover:z-20"
             style={{ top, left }}
           >
-            <div className="bg-dark-tech border border-slate-700 p-2 rounded shadow-lg mb-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap hidden sm:block">
-              <p className="font-bold text-white text-sm">{station.name}</p>
-              <p className="text-ev-green text-xs">{station.available ? 'Available' : 'Busy'}</p>
+            <div className="bg-[#0F172A]/80 backdrop-blur-3xl border border-white/10 p-3 rounded-xl shadow-lg mb-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:-translate-y-2 whitespace-nowrap hidden sm:block pointer-events-none">
+              <p className="font-bold text-white text-sm tracking-wide">{station.name}</p>
+              <div className="flex items-center gap-1.5 mt-1">
+                <span className={`w-1.5 h-1.5 rounded-full ${station.available ? 'bg-ev-green animate-pulse' : 'bg-red-500'}`}></span>
+                <p className={`text-xs font-bold ${station.available ? 'text-ev-green' : 'text-red-400'}`}>{station.available ? 'Available' : 'Busy'}</p>
+              </div>
             </div>
-            <MdLocationPin className={`text-4xl drop-shadow-md transition-transform group-hover:scale-125 ${station.available ? 'text-ev-green drop-shadow-[0_0_10px_rgba(0,255,135,0.8)]' : 'text-red-500'}`} />
+            
+            <div className="relative flex items-center justify-center w-8 h-8 group-hover:scale-110 transition-transform duration-300">
+              <div className={`absolute w-full h-full rounded-full ${station.available ? 'bg-ev-green' : 'bg-red-500'} opacity-40 animate-ping`}></div>
+              <div className={`relative w-4 h-4 rounded-full ${station.available ? 'bg-ev-green' : 'bg-red-500'} border-2 border-slate-900 shadow-[0_0_10px_${station.available ? 'rgba(0,255,135,0.8)' : 'rgba(239,68,68,0.8)'}]`}></div>
+            </div>
           </div>
         );
       })}

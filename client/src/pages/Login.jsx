@@ -3,12 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import { BsLightningChargeFill } from 'react-icons/bs';
 import { useAuth } from '../hooks/useAuth';
+import { motion } from 'framer-motion';
+import toast from 'react-hot-toast';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -16,22 +17,22 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     if (!email || !password) {
-      setError('Please fill in all fields');
+      toast.error('Please fill in all fields');
       return;
     }
     if (loading) return;
 
     setLoading(true);
-    setError('');
     try {
       const res = await login(email, password);
+      toast.success('Welcome back!');
       if (res.data.role === 'admin') {
         navigate('/admin');
       } else {
         navigate('/stations');
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. The server may be waking up — please try again in 30 seconds.');
+      toast.error(err.response?.data?.message || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -39,7 +40,12 @@ const Login = () => {
 
   return (
     <div className="min-h-[85vh] flex items-center justify-center py-10 px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-5xl bg-dark-tech-light/30 backdrop-blur-xl rounded-3xl shadow-[0_0_50px_rgba(0,212,255,0.05)] border border-slate-700/50 flex flex-col-reverse lg:flex-row overflow-hidden relative">
+      <motion.div 
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: "spring", stiffness: 200, damping: 20 }}
+        className="w-full max-w-5xl bg-dark-tech-light/30 backdrop-blur-xl rounded-3xl shadow-[0_0_50px_rgba(0,212,255,0.05)] border border-slate-700/50 flex flex-col-reverse lg:flex-row overflow-hidden relative"
+      >
         
         {/* Decorative elements for mobile */}
         <div className="absolute top-[-50px] left-[-50px] w-40 h-40 bg-ev-cyan opacity-20 rounded-full blur-3xl lg:hidden"></div>
@@ -62,11 +68,6 @@ const Login = () => {
           </div>
 
           <form className="space-y-6" onSubmit={handleLogin}>
-            {error && (
-              <div className="bg-red-500/10 border-l-4 border-red-500 text-red-400 text-sm p-4 rounded-r-md font-body animate-pulse">
-                {error}
-              </div>
-            )}
             
             <div className="group">
               <label className="block text-sm font-medium text-slate-300 font-body mb-2 transition-colors group-focus-within:text-ev-cyan">
@@ -131,10 +132,12 @@ const Login = () => {
             </div>
 
             <div className="pt-4">
-              <button
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent rounded-xl shadow-lg text-sm font-bold font-body text-dark-tech bg-gradient-to-r from-ev-cyan to-[#00b4d8] hover:from-[#00e5ff] hover:to-ev-cyan focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-dark-tech focus:ring-ev-cyan transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(0,212,255,0.3)] disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+                className="w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent rounded-xl shadow-lg text-sm font-bold font-body text-dark-tech bg-gradient-to-r from-ev-cyan to-[#00b4d8] hover:from-[#00e5ff] hover:to-ev-cyan focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-dark-tech focus:ring-ev-cyan transition-all duration-300 shadow-[0_10px_20px_rgba(0,212,255,0.2)] hover:shadow-[0_10px_25px_rgba(0,212,255,0.4)] disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <>
@@ -145,7 +148,7 @@ const Login = () => {
                     Signing In...
                   </>
                 ) : 'Sign In'}
-              </button>
+              </motion.button>
             </div>
           </form>
         </div>
@@ -179,7 +182,7 @@ const Login = () => {
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+CjxyZWN0IHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgZmlsbD0ibm9uZSI+PC9yZWN0Pgo8cGF0aCBkPSJNMCA0MEwwIDBMMDAgME00MCA0MEw0MCAwIiBzdHJva2U9InJnYmEoMjU1LDI1NSwyNTUsMC4wMykiIHN0cm9rZS13aWR0aD0iMSIvPgo8cGF0aCBkPSJNNDAgMEwwIDBNNDAgNDBMMCA0MCIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDMpIiBzdHJva2Utd2lkdGg9IjEiLz4KPC9zdmc+')] opacity-50 z-0"></div>
         </div>
         
-      </div>
+      </motion.div>
     </div>
   );
 };
