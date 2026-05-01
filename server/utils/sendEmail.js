@@ -2,12 +2,13 @@ import nodemailer from 'nodemailer';
 
 const sendEmail = async (options) => {
   // Fallback to console logging if SMTP is not configured
-  if (!process.env.SMTP_HOST || process.env.SMTP_HOST.includes('your_smtp')) {
+  if (!process.env.SMTP_HOST || process.env.SMTP_HOST.includes('your_smtp') || process.env.SMTP_PASSWORD?.includes('PASTE_YOUR')) {
     console.log('-----------------------------------------');
-    console.log('📧 EMAIL SIMULATION (SMTP not configured)');
+    console.log('⚠️  EMAIL SIMULATION ACTIVE');
+    console.log('Reason: SMTP credentials (SMTP_HOST or SMTP_PASSWORD) are missing or default.');
+    console.log('Action: If you are on Render, add these to your Environment Variables dashboard.');
     console.log(`To: ${options.email}`);
     console.log(`Subject: ${options.subject}`);
-    console.log(`Message: ${options.message}`);
     console.log('-----------------------------------------');
     return;
   }
