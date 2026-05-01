@@ -4,6 +4,7 @@ import { MdInsertChart, MdEvStation, MdPeople, MdBook, MdAdd, MdEdit, MdDelete, 
 import { AuthContext } from '../context/AuthContext';
 import { useStations } from '../hooks/useStations';
 import api from '../services/api';
+import toast from 'react-hot-toast';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 const AdminPanel = () => {
@@ -17,7 +18,7 @@ const AdminPanel = () => {
     }
   }, [user, userLoading, navigate]);
 
-  const { stations, loading, error } = useStations();
+  const { stations, loading, error, refresh } = useStations();
   
   const [bookings, setBookings] = useState([]);
   const [loadingBookings, setLoadingBookings] = useState(true);
@@ -37,7 +38,9 @@ const AdminPanel = () => {
   const handleSaveEdit = async () => {
     try {
       await api.put(`/stations/${editingStationId}`, editFormData);
-      window.location.reload();
+      setEditingStationId(null);
+      refresh();
+      toast.success('Station updated!');
     } catch(err) {
       alert('Failed to update station settings');
     }
@@ -276,7 +279,9 @@ const AdminPanel = () => {
                   const payload = { ...formData, coordinates: { lat: formData.lat, lng: formData.lng }, chargerTypes: [formData.chargerTypes] };
                   if (formData.imageBase64) payload.images = [formData.imageBase64];
                   await api.post('/stations', payload);
-                  window.location.reload(); // Quick refresh to show new data
+                  setIsAddingStation(false);
+                  refresh();
+                  toast.success('Station created successfully!');
                 } catch (err) {
                   setSubmitError(err.response?.data?.message || 'Failed to create station');
                 }
@@ -352,7 +357,8 @@ const AdminPanel = () => {
                             <button onClick={async () => {
                               try {
                                 await api.delete(`/stations/${st._id}`);
-                                window.location.reload();
+                                refresh();
+                                toast.success('Station deleted');
                               } catch(err) { alert('Failed to delete station'); }
                             }} className="p-2 bg-slate-800 hover:bg-red-500/20 text-red-500 rounded transition-colors"><MdDelete /></button>
                           </td>

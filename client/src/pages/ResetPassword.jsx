@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import { BsLightningChargeFill, BsShieldLockFill } from 'react-icons/bs';
-import axios from 'axios';
+import api from '../services/api';
 import { useAuth } from '../hooks/useAuth';
 
 const ResetPassword = () => {
@@ -34,7 +34,7 @@ const ResetPassword = () => {
     setError('');
 
     try {
-      const { data } = await axios.put(`/api/v1/auth/resetpassword/${token}`, { password });
+      const { data } = await api.put(`/auth/resetpassword/${token}`, { password });
       
       if (data.success) {
         // Automatic login after reset

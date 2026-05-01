@@ -5,10 +5,11 @@ import { MdDashboard, MdHistory, MdPerson, MdSettings, MdExitToApp, MdClose, MdS
 import { BsLightningChargeFill } from 'react-icons/bs';
 import ChargingProgress from '../components/ChargingProgress';
 import api from '../services/api';
+import toast from 'react-hot-toast';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
-  const { user, loading, logout } = useContext(AuthContext);
+  const { user, setUser, loading, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [bookings, setBookings] = useState([]);
@@ -104,9 +105,10 @@ const Dashboard = () => {
     try {
       const payload = { ...profileForm };
       if (profileImageFile) payload.profileImage = profileImageFile;
-      await api.put('/users/profile', payload);
-      setProfileMessage('Profile updated successfully! Refreshing...');
-      setTimeout(() => window.location.reload(), 1500);
+      const { data } = await api.put('/users/profile', payload);
+      setUser(data.data);
+      setProfileMessage('Profile updated successfully!');
+      toast.success('Profile updated!');
     } catch (err) {
       setProfileMessage('Error updating profile');
     }

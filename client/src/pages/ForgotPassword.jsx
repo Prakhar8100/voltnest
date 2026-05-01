@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { BsLightningChargeFill, BsArrowLeft, BsCheckCircleFill } from 'react-icons/bs';
-import axios from 'axios';
+import api from '../services/api';
 import toast from 'react-hot-toast';
 
 const ForgotPassword = () => {
@@ -21,7 +21,7 @@ const ForgotPassword = () => {
     setMessage('');
 
     try {
-      const { data } = await axios.post('/api/v1/auth/forgotpassword', { email });
+      const { data } = await api.post('/auth/forgotpassword', { email });
       setMessage('A reset link has been sent to your email address.');
       toast.success('Reset link sent successfully!');
       setSubmitted(true);

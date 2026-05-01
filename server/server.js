@@ -11,7 +11,6 @@ import authRoutes from './routes/authRoutes.js';
 import stationRoutes from './routes/stationRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
 import userRoutes from './routes/userRoutes.js';
-import reviewRoutes from './routes/reviewRoutes.js';
 
 dotenv.config();
 
