@@ -1,40 +1,41 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
 const sendEmail = async (options) => {
-  // Fallback to console logging if SMTP is not configured
-  if (!process.env.SMTP_HOST || process.env.SMTP_HOST.includes('your_smtp') || process.env.SMTP_PASSWORD?.includes('PASTE_YOUR')) {
+  const apiKey = process.env.RESEND_API_KEY || process.env.SMTP_PASSWORD;
+
+  // Fallback to console logging if API Key is missing or default
+  if (!apiKey || apiKey.includes('PASTE_YOUR')) {
     console.log('-----------------------------------------');
     console.log('⚠️  EMAIL SIMULATION ACTIVE');
-    console.log('Reason: SMTP credentials (SMTP_HOST or SMTP_PASSWORD) are missing or default.');
-    console.log('Action: If you are on Render, add these to your Environment Variables dashboard.');
+    console.log('Reason: RESEND_API_KEY is missing or default.');
+    console.log('Action: If you are on Render, add RESEND_API_KEY to your Environment Variables.');
     console.log(`To: ${options.email}`);
     console.log(`Subject: ${options.subject}`);
     console.log('-----------------------------------------');
     return;
   }
 
-  const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
-    secure: process.env.SMTP_PORT == 465, // true for 465, false for other ports
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASSWORD,
-    },
-    // Add a timeout setting to be safe
-    connectionTimeout: 10000, // 10 seconds
-  });
+  const resend = new Resend(apiKey);
 
-  const message = {
-    from: `${process.env.FROM_NAME || 'VoltNest'} <${process.env.FROM_EMAIL || 'noreply@voltnest.com'}>`,
-    to: options.email,
-    subject: options.subject,
-    text: options.message,
-    html: options.html,
-  };
+  try {
+    const { data, error } = await resend.emails.send({
+      from: `${process.env.FROM_NAME || 'VoltNest'} <${process.env.FROM_EMAIL || 'onboarding@resend.dev'}>`,
+      to: [options.email],
+      subject: options.subject,
+      text: options.message,
+      html: options.html,
+    });
 
-  const info = await transporter.sendMail(message);
-  console.log('Message sent: %s', info.messageId);
+    if (error) {
+      console.error('Resend Error:', error);
+      throw new Error(error.message);
+    }
+
+    console.log('Email sent successfully via Resend SDK:', data.id);
+  } catch (err) {
+    console.error('Failed to send email:', err.message);
+    throw err;
+  }
 };
 
 export default sendEmail;
