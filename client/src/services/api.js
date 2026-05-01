@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
+  baseURL: import.meta.env.VITE_API_URL || '',
   timeout: 70000, // 70 seconds — handles Render free tier cold start (~50s wake-up time)
   headers: {
     'Content-Type': 'application/json',
@@ -11,6 +11,11 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
+    // Automatically prepend /api if it's missing from the request path
+    if (config.url && !config.url.startsWith('/api') && !config.url.startsWith('http')) {
+      config.url = `/api${config.url.startsWith('/') ? '' : '/'}${config.url}`;
+    }
+
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
