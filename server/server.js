@@ -1,3 +1,4 @@
+import path from 'path';
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
@@ -36,6 +37,37 @@ app.use('/api/stations', stationRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/users', userRoutes);
 
+const __dirname = path.resolve();
+
+// Priority 1: Serve static files from the frontend build (Production)
+if (process.env.NODE_ENV === 'production') {
+  const distPath = path.join(__dirname, '../client/dist');
+  app.use(express.static(distPath));
+
+  app.get('*', (req, res) => {
+    if (!req.url.startsWith('/api')) {
+      const indexPath = path.join(distPath, 'index.html');
+      // Check if index.html exists before sending
+      res.sendFile(indexPath, (err) => {
+        if (err) {
+          res.status(200).send('VoltNest API is running (Frontend build not found)');
+        }
+      });
+    } else {
+      res.status(404).json({ success: false, message: 'API Route Not Found' });
+    }
+  });
+} else {
+  // Priority 2: Health Check / Root (Development)
+  app.get('/', (req, res) => {
+    res.send('VoltNest API is running in development mode...');
+  });
+}
+
+// Fallback for root if not handled above (e.g. production but accessing /)
+app.get('/', (req, res) => {
+  res.send('VoltNest API is running...');
+});
 
 app.use(errorHandler);
 
